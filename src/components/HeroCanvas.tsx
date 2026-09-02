@@ -1,148 +1,148 @@
 'use client';
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, MeshTransmissionMaterial } from '@react-three/drei';
+import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
-/**
- * Procedural Interactive Character Rig (Target: solar_rig.gltf architecture)
- * 
- * Implements procedural Inverse Kinematics (IK) head/eye dampening
- * that tracks the user's cursor across normalized viewport coordinates.
- * Features procedural secondary motion (breathing cycles, micro-saccades).
- */
-function CharacterRig({ pointer }: { pointer: React.MutableRefObject<{ x: number; y: number }> }) {
-  const rootRef = useRef<THREE.Group>(null);
-  const neckRef = useRef<THREE.Group>(null);
-  const headRef = useRef<THREE.Group>(null);
-  const leftEyeRef = useRef<THREE.Mesh>(null);
-  const rightEyeRef = useRef<THREE.Mesh>(null);
+// Pre-warm the GLTF Draco model
+useGLTF.preload('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
 
-  // Target look vectors for damping
-  const targetLookAt = useMemo(() => new THREE.Vector3(), []);
-  const currentLookAt = useMemo(() => new THREE.Vector3(), []);
+function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: number; y: number }> }) {
+  const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+  const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state, delta) => {
-    const time = state.clock.elapsedTime;
+  // Mesh references for procedural animations
+  const eyelashesRef = useRef<THREE.Object3D | null>(null);
+  const eyesRef = useRef<THREE.Object3D | null>(null);
 
-    // 1. Calculate Cursor Depth & Screen Space IK Target
-    const mouseX = pointer.current.x; // Normalized -1 to 1
+  // Blink state
+  const blinkState = useRef({
+    progress: -1,
+    nextBlinkTime: 2.0,
+    isDoubleBlink: false,
+  });
+
+  // Calibrate materials on load to match the studio anime render
+  useEffect(() => {
+    scene.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: THREE.MeshStandardMaterial) => {
+          if (!mat.name) return;
+          const name = mat.name.toLowerCase();
+
+          if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
+            // White braided & flowing anime hair
+            mat.transparent = false;
+            mat.depthWrite = true;
+            mat.color.setRGB(0.88, 0.89, 0.92);
+            mat.roughness = 0.48;
+            mat.metalness = 0.04;
+          } else if (name.includes('material.007')) {
+            mat.transparent = false;
+            mat.depthWrite = true;
+            mat.color.setRGB(0.2, 0.9, 0.85);
+            mat.roughness = 0.4;
+          } else if (name.includes('facemouth') || name.includes('faceeyelash') || name.includes('faceeyeline') || name.includes('facebrow')) {
+            // Clean 2D cel-shaded facial contours
+            mat.transparent = true;
+            mat.depthWrite = false;
+            mat.alphaTest = 0.02;
+          } else if (name.includes('face_00_skin') || name.includes('body_00_skin')) {
+            mat.roughness = 0.62;
+            mat.color.setRGB(1.0, 0.95, 0.95);
+          } else if (name.includes('leather')) {
+            mat.color.setRGB(0.38, 0.16, 0.12);
+            mat.roughness = 0.38;
+          } else if (name.includes('metal')) {
+            mat.color.setRGB(0.95, 0.82, 0.45);
+            mat.metalness = 0.85;
+            mat.roughness = 0.25;
+          } else if (name.includes('silk')) {
+            mat.color.setRGB(0.92, 0.93, 0.95);
+            mat.roughness = 0.45;
+          } else if (name.includes('eyeiris')) {
+            // Radiant glowing cyan anime eyes
+            mat.emissive = new THREE.Color('#00F0FF');
+            mat.emissiveIntensity = 0.85;
+            mat.roughness = 0.06;
+          }
+        });
+
+        const objName = child.name;
+        if (objName.includes('FaceEyelash')) eyelashesRef.current = child;
+        else if (objName.includes('EyeIris')) eyesRef.current = child;
+      }
+    });
+  }, [scene]);
+
+  // Procedural Living Animation Loop
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    const mouseX = pointer.current.x;
     const mouseY = pointer.current.y;
 
-    targetLookAt.set(mouseX * 3.5, mouseY * 2.5, 4.0);
+    if (groupRef.current) {
+      // 1. Procedural breathing
+      const breath = Math.sin(time * 2.2);
+      groupRef.current.position.y = -1.35 + breath * 0.008;
 
-    // 2. Slerp interpolation for smooth biomechanical dampening
-    currentLookAt.lerp(targetLookAt, 4.0 * delta);
+      // 2. Cursor tracking with smooth slerp dampening
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, mouseX * 0.35, 0.05);
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -mouseY * 0.2, 0.05);
 
-    // 3. Head & Neck IK rotation
-    if (headRef.current && neckRef.current) {
-      headRef.current.lookAt(currentLookAt);
-      
-      // Neck takes 35% of the total rotation strain
-      neckRef.current.rotation.y = headRef.current.rotation.y * 0.35;
-      neckRef.current.rotation.x = headRef.current.rotation.x * 0.35;
+      // Subtle chest sway
+      groupRef.current.rotation.z = Math.sin(time * 1.1) * 0.01;
     }
 
-    // 4. Eye Micro-Saccade Tracking
-    if (leftEyeRef.current && rightEyeRef.current) {
-      const eyeLookTarget = currentLookAt.clone();
-      leftEyeRef.current.lookAt(eyeLookTarget);
-      rightEyeRef.current.lookAt(eyeLookTarget);
+    // 3. Natural non-linear eyelid blinking
+    const blink = blinkState.current;
+    if (time > blink.nextBlinkTime && blink.progress < 0) {
+      blink.progress = 0;
+      blink.isDoubleBlink = Math.random() < 0.25;
     }
 
-    // 5. Procedural Breathing & Floating Dynamics
-    if (rootRef.current) {
-      rootRef.current.position.y = -0.5 + Math.sin(time * 1.8) * 0.06;
-      rootRef.current.rotation.z = Math.sin(time * 0.9) * 0.02;
+    if (blink.progress >= 0) {
+      blink.progress += 0.16;
+      let eyeScaleY = 1.0;
+      if (blink.progress <= 0.5) {
+        eyeScaleY = 1.0 - (blink.progress / 0.5) * 0.95;
+      } else if (blink.progress <= 1.0) {
+        eyeScaleY = 0.05 + ((blink.progress - 0.5) / 0.5) * 0.95;
+      } else {
+        if (blink.isDoubleBlink) {
+          blink.progress = 0;
+          blink.isDoubleBlink = false;
+        } else {
+          blink.progress = -1;
+          blink.nextBlinkTime = time + 2.5 + Math.random() * 3.5;
+        }
+      }
+
+      if (eyelashesRef.current) eyelashesRef.current.scale.y = eyeScaleY;
+      if (eyesRef.current) eyesRef.current.scale.y = eyeScaleY;
     }
   });
 
   return (
-    <group ref={rootRef} position={[0, -0.5, 0]}>
-      {/* Upper Torso / Chassis */}
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.7, 0.45, 1.4, 32]} />
-        <meshStandardMaterial
-          color="#0B101B"
-          roughness={0.2}
-          metalness={0.9}
-          wireframe={false}
-        />
-      </mesh>
-
-      {/* Glowing Energy Core / Solar Conduit */}
-      <mesh position={[0, 0.2, 0.38]}>
-        <sphereGeometry args={[0.22, 32, 32]} />
-        <meshStandardMaterial
-          color="#FF0055"
-          emissive="#FF0055"
-          emissiveIntensity={3.5}
-          roughness={0.1}
-        />
-      </mesh>
-
-      {/* Neck Joint */}
-      <group ref={neckRef} position={[0, 0.85, 0]}>
-        <mesh>
-          <cylinderGeometry args={[0.2, 0.25, 0.3, 16]} />
-          <meshStandardMaterial color="#1a2234" metalness={0.8} roughness={0.3} />
-        </mesh>
-
-        {/* Head Rig */}
-        <group ref={headRef} position={[0, 0.35, 0]}>
-          {/* Cybernetic Skull / Visor Frame */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[0.55, 32, 32]} />
-            <meshStandardMaterial
-              color="#070a12"
-              roughness={0.15}
-              metalness={0.95}
-            />
-          </mesh>
-
-          {/* Refractive Optical Visor */}
-          <mesh position={[0, 0.05, 0.28]} rotation={[0.1, 0, 0]}>
-            <boxGeometry args={[0.75, 0.25, 0.4]} />
-            <MeshTransmissionMaterial
-              backside
-              samples={6}
-              thickness={0.2}
-              chromaticAberration={0.08}
-              anisotropy={0.2}
-              distortion={0.15}
-              distortionScale={0.3}
-              temporalDistortion={0.1}
-              color="#ffffff"
-              attenuationColor="#FF0055"
-              attenuationDistance={0.5}
-            />
-          </mesh>
-
-          {/* Left Eye Pupil */}
-          <mesh ref={leftEyeRef} position={[-0.18, 0.05, 0.48]}>
-            <sphereGeometry args={[0.06, 16, 16]} />
-            <meshBasicMaterial color="#00F0FF" />
-          </mesh>
-
-          {/* Right Eye Pupil */}
-          <mesh ref={rightEyeRef} position={[0.18, 0.05, 0.48]}>
-            <sphereGeometry args={[0.06, 16, 16]} />
-            <meshBasicMaterial color="#00F0FF" />
-          </mesh>
-        </group>
-      </group>
-
-      {/* Shoulder Mechanical Armor */}
-      <mesh position={[-0.95, 0.55, 0]} rotation={[0, 0, 0.25]}>
-        <capsuleGeometry args={[0.22, 0.45, 8, 16]} />
-        <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
-      </mesh>
-      <mesh position={[0.95, 0.55, 0]} rotation={[0, 0, -0.25]}>
-        <capsuleGeometry args={[0.22, 0.45, 8, 16]} />
-        <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
-      </mesh>
+    <group ref={groupRef} position={[0, -1.35, 0]}>
+      <primitive object={scene} />
     </group>
+  );
+}
+
+function Loader() {
+  return (
+    <Html center>
+      <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl glass-panel text-slate-300 font-mono text-xs border border-white/[0.1] shadow-glass-glow">
+        <div className="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
+        <span>INITIALIZING NEURAL 3D RIG...</span>
+      </div>
+    </Html>
   );
 }
 
@@ -150,7 +150,6 @@ export function HeroCanvas() {
   const pointer = useRef({ x: 0, y: 0 });
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    // Calculate normalized pointer coordinates (-1 to 1)
     pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
   };
@@ -161,24 +160,34 @@ export function HeroCanvas() {
       onPointerMove={handlePointerMove}
     >
       <Canvas
-        camera={{ position: [0, 0, 4.5], fov: 42 }}
+        camera={{ position: [0, 0.05, 0.72], fov: 38 }}
         gl={{
           powerPreference: 'high-performance',
           antialias: true,
           alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.0,
         }}
       >
-        <ambientLight intensity={0.6} />
+        {/* Calibrated Studio 3-Point + Dual Rim Lighting */}
+        <ambientLight intensity={0.65} color="#282c38" />
         
-        {/* Key Lighting with Cyberpunk Colorway */}
-        <directionalLight position={[4, 5, 4]} intensity={2.2} color="#ffffff" />
-        <pointLight position={[-4, 2, 2]} intensity={5.0} color="#FF0055" distance={10} />
-        <pointLight position={[3, -2, 2]} intensity={4.0} color="#00F0FF" distance={8} />
+        {/* Warm Studio Key Light */}
+        <directionalLight position={[0.35, 1.85, 1.25]} intensity={2.0} color="#ffeedd" />
+        
+        {/* Cool Cyan Fill Light */}
+        <directionalLight position={[-1.2, 1.3, 0.9]} intensity={0.8} color="#8cb4e8" />
+        
+        {/* Warm Bottom Bounce */}
+        <directionalLight position={[0, 0.6, 0.8]} intensity={0.4} color="#d0a888" />
+        
+        {/* Brilliant Hair Rim Lighting */}
+        <directionalLight position={[0, 2.3, -1.2]} intensity={2.6} color="#ffffff" />
+        <directionalLight position={[0, 2.6, 0.2]} intensity={2.2} color="#ffffff" />
 
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-          <CharacterRig pointer={pointer} />
-        </Float>
+        <Suspense fallback={<Loader />}>
+          <AnimeCharacter pointer={pointer} />
+        </Suspense>
       </Canvas>
     </div>
   );
