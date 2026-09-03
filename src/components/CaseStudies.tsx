@@ -55,7 +55,11 @@ const PROJECTS: Project[] = [
   },
 ];
 
-export function CaseStudies() {
+interface CaseStudiesProps {
+  onHoverProject?: (title: string | null) => void;
+}
+
+export function CaseStudies({ onHoverProject }: CaseStudiesProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
@@ -86,8 +90,14 @@ export function CaseStudies() {
             <motion.div
               key={project.id}
               className="group relative rounded-2xl glass-card p-8 flex flex-col justify-between overflow-hidden cursor-pointer"
-              onMouseEnter={() => setHoveredIndex(idx)}
-              onMouseLeave={() => setHoveredIndex(null)}
+              onMouseEnter={() => {
+                setHoveredIndex(idx);
+                onHoverProject?.(project.title);
+              }}
+              onMouseLeave={() => {
+                setHoveredIndex(null);
+                onHoverProject?.(null);
+              }}
               whileHover={{ y: -6 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
