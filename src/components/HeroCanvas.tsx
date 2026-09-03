@@ -12,20 +12,18 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
   const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const groupRef = useRef<THREE.Group>(null);
 
-  // Mesh references for procedural animations
+  // Mesh references for procedural eyelid blinking
   const eyelashesRef = useRef<THREE.Object3D | null>(null);
   const eyelineRef = useRef<THREE.Object3D | null>(null);
-  const eyesRef = useRef<THREE.Object3D | null>(null);
-  const browsRef = useRef<THREE.Object3D | null>(null);
 
-  // Blink state
+  // Natural blink cycle state
   const blinkState = useRef({
     progress: -1,
     nextBlinkTime: 2.0,
     isDoubleBlink: false,
   });
 
-  // Calibrate native materials on load (PRESERVING the model's native UV maps & textures)
+  // Preserve and enhance the model's native embedded textures and PBR materials
   useEffect(() => {
     scene.traverse((child: any) => {
       if (child.isMesh) {
@@ -37,7 +35,7 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
           if (!mat.name) return;
           const name = mat.name.toLowerCase();
 
-          // White braided & flowing anime hair
+          // White hair strands - luminous silver sheen
           if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
             mat.transparent = false;
             mat.depthWrite = true;
@@ -45,14 +43,14 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
             mat.roughness = 0.44;
             mat.metalness = 0.04;
           } 
-          // Teal hair streak
+          // Signature teal hair highlight streak
           else if (name.includes('material.007')) {
             mat.transparent = false;
             mat.depthWrite = true;
             mat.color.setRGB(0.18, 0.90, 0.82);
             mat.roughness = 0.38;
           } 
-          // 2D facial contours - keep clean alpha
+          // 2D anime facial line art (clean alpha rendering, no depth fighting)
           else if (name.includes('faceeyelash') || name.includes('faceeyeline') || name.includes('facebrow')) {
             mat.transparent = true;
             mat.depthWrite = false;
@@ -63,23 +61,23 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
             mat.depthWrite = false;
             mat.alphaTest = 0.02;
           } 
-          // Skin
+          // Skin materials - keep native blush and texture intact
           else if (name.includes('face_00_skin') || name.includes('body_00_skin')) {
             mat.roughness = 0.55;
             mat.metalness = 0.0;
           } 
-          // Leather choker
+          // Leather collar
           else if (name.includes('leather')) {
             mat.color.setRGB(0.42, 0.18, 0.14);
             mat.roughness = 0.36;
           } 
-          // Metal buckle
+          // Gold metallic buckle
           else if (name.includes('metal')) {
             mat.color.setRGB(0.95, 0.84, 0.50);
             mat.metalness = 0.88;
             mat.roughness = 0.22;
           } 
-          // White silk shirt
+          // White silk shirt & bandage tape
           else if (name.includes('silk') || name.includes('material')) {
             mat.color.setRGB(0.94, 0.94, 0.96);
             mat.roughness = 0.50;
@@ -95,8 +93,6 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
         const objName = child.name;
         if (objName.includes('FaceEyelash')) eyelashesRef.current = child;
         else if (objName.includes('FaceEyeline')) eyelineRef.current = child;
-        else if (objName.includes('EyeIris')) eyesRef.current = child;
-        else if (objName.includes('FaceBrow')) browsRef.current = child;
       }
     });
   }, [scene]);
@@ -104,19 +100,21 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
   // Procedural Living Animation Loop
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const mouseX = pointer.current.x; // -1 to 1
-    const mouseY = pointer.current.y; // -1 to 1
+    const mouseX = pointer.current.x; // -1 (left) to 1 (right)
+    const mouseY = pointer.current.y; // -1 (bottom) to 1 (top)
 
     if (groupRef.current) {
-      // 1. Organic breathing cycle
+      // 1. Organic diaphragm breathing motion
       const breath = Math.sin(time * 2.2);
       groupRef.current.position.y = -1.35 + breath * 0.005;
 
-      // 2. Dead-forward neutral orientation + responsive eye-contact tracking
-      // Facing straight at the camera when mouse is centered (rotation = 0)
-      const targetYaw = mouseX * 0.22;
-      const targetPitch = -mouseY * 0.14;
-      const targetRoll = mouseX * 0.03;
+      // 2. FORWARD-FACING NEUTRAL BASELINE (Math.PI / 180°):
+      // The model's native coordinate origin faces -Z.
+      // Rotating by Math.PI turns her face directly forward toward the camera and viewer!
+      const BASE_YAW = Math.PI;
+      const targetYaw = BASE_YAW - mouseX * 0.22;
+      const targetPitch = mouseY * 0.14;
+      const targetRoll = -mouseX * 0.03;
 
       groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 0.06);
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 0.06);
@@ -150,22 +148,11 @@ function AnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x: numb
       if (eyelashesRef.current) eyelashesRef.current.scale.y = eyeScaleY;
       if (eyelineRef.current) eyelineRef.current.scale.y = eyeScaleY;
     }
-
-    // 4. Subtle pupil tracking
-    if (eyesRef.current) {
-      eyesRef.current.position.x = mouseX * 0.0012;
-      eyesRef.current.position.y = mouseY * 0.0008;
-    }
-
-    // 5. Delicate eyebrow micro-motion
-    if (browsRef.current) {
-      browsRef.current.position.y = Math.max(0, mouseY) * 0.0012 + Math.sin(time * 1.5) * 0.0005;
-    }
   });
 
   return (
-    // Neutral forward-facing orientation (0,0,0) exactly as in the user's liked screenshot
-    <group ref={groupRef} position={[0, -1.35, 0]} rotation={[0, 0, 0]}>
+    // Rotated by Math.PI (180°) so her face points directly at the camera with native textures
+    <group ref={groupRef} position={[0, -1.35, 0]} rotation={[0, Math.PI, 0]}>
       <primitive object={scene} />
     </group>
   );
@@ -176,7 +163,7 @@ function Loader() {
     <Html center>
       <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl glass-panel text-slate-300 font-mono text-xs border border-white/[0.1] shadow-glass-glow">
         <div className="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
-        <span>INITIALIZING LIVING 3D RIG...</span>
+        <span>CALIBRATING FORWARD 3D RIG...</span>
       </div>
     </Html>
   );
@@ -210,19 +197,19 @@ export function HeroCanvas() {
           toneMappingExposure: 1.0,
         }}
       >
-        {/* Studio Lighting */}
+        {/* Studio 4-Point Lighting matching front orientation */}
         <ambientLight intensity={0.65} color="#282c38" />
         
-        {/* Key Studio Light */}
+        {/* Front Key Light */}
         <directionalLight position={[0.35, 1.85, 1.25]} intensity={2.2} color="#ffeedd" />
         
-        {/* Fill Light */}
+        {/* Cool Front-Left Fill */}
         <directionalLight position={[-1.2, 1.3, 0.9]} intensity={0.8} color="#8cb4e8" />
         
         {/* Warm Bottom Bounce */}
         <directionalLight position={[0, 0.6, 0.8]} intensity={0.4} color="#d0a888" />
         
-        {/* Hair Rim Lights */}
+        {/* Back Hair Rim Light */}
         <directionalLight position={[0, 2.3, -1.2]} intensity={2.6} color="#ffffff" />
         <directionalLight position={[0, 2.6, 0.2]} intensity={2.2} color="#ffffff" />
 
