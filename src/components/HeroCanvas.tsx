@@ -27,7 +27,7 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
   // Autonomous blink cycle state
   const blinkState = useRef({
     progress: -1,
-    nextBlinkTime: 2.2,
+    nextBlinkTime: 2.0,
     isDoubleBlink: false,
   });
 
@@ -183,7 +183,6 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
     const mouseY = pointer.current.y;
 
     // 1. Organic Whole-Body Breathing Mechanics (Asymmetric Inhale/Exhale)
-    // Faster inhalation (25%), slower relaxation (75%) for lifelike diaphragm motion
     const breath = (Math.sin(time * 1.8) + 0.35 * Math.sin(time * 3.6)) * 0.0035;
     const breathChest = Math.max(0, Math.sin(time * 1.8)) * 0.005;
 
@@ -192,16 +191,17 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
       groupRef.current.position.y = -1.37 + breath;
       groupRef.current.position.z = breathChest;
 
-      // FORWARD-FACING ALIGNMENT WITH ORGANIC EYE-CONTACT DYNAMICS:
-      // Neutral baseline is 0.0 (directly facing forward into the camera).
-      // Cursor tracking introduces subtle, conscious orientation towards the viewer.
-      const targetYaw = mouseX * 0.20 + Math.sin(time * 0.6) * 0.008;
-      const targetPitch = -mouseY * 0.12 - breath * 0.8;
-      const targetRoll = mouseX * 0.04 + Math.cos(time * 0.8) * 0.006;
+      // 180° ROTATION (Math.PI) TO FACE FORWARD TOWARDS THE CAMERA & USER:
+      // Neutral baseline is Math.PI so she directly faces the user!
+      // Cursor tracking smoothly turns her head towards your mouse pointer
+      const BASE_YAW = Math.PI;
+      const targetYaw = BASE_YAW - mouseX * 0.22 + Math.sin(time * 0.6) * 0.008;
+      const targetPitch = mouseY * 0.12 - breath * 0.6; // Inverted so head looks up when mouse is up
+      const targetRoll = -mouseX * 0.04 + Math.cos(time * 0.8) * 0.006;
 
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 3.5 * delta);
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 3.5 * delta);
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.0 * delta);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 4.0 * delta);
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 4.0 * delta);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.5 * delta);
     }
 
     // 2. Eye-Lead Kinematics & Biological Micro-Saccades
@@ -214,16 +214,16 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
       saccade.nextSaccadeTime = time + 0.8 + Math.random() * 1.6;
     }
 
-    // Eyes respond quickly with high tracking affinity
+    // Eyes respond quickly with high tracking affinity (inverted X inside Math.PI rotation)
     currentEyeGaze.current.x = THREE.MathUtils.lerp(
       currentEyeGaze.current.x,
-      mouseX * 0.0028 + saccade.x,
-      8.0 * delta
+      -mouseX * 0.0028 + saccade.x,
+      9.0 * delta
     );
     currentEyeGaze.current.y = THREE.MathUtils.lerp(
       currentEyeGaze.current.y,
       mouseY * 0.0022 + saccade.y,
-      8.0 * delta
+      9.0 * delta
     );
 
     if (eyeIrisRef.current) {
@@ -254,7 +254,7 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
         } else {
           blink.progress = -1;
           // Random natural cadence (every 2.5 to 5.5 seconds)
-          blink.nextBlinkTime = time + 2.4 + Math.random() * 3.2;
+          blink.nextBlinkTime = time + 2.2 + Math.random() * 3.2;
         }
       }
     }
@@ -264,9 +264,7 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
 
     // 4. Expressive Eyebrow Micro-Gestures
     if (browsRef.current) {
-      // Inquisitive subtle brow raise when cursor is above eye level
       const emotionalArch = Math.max(0, mouseY) * 0.0018;
-      // Slight eyebrow relaxation during blink
       const blinkBrowDip = (1.0 - eyeScaleY) * 0.0012;
       const breathingWave = Math.sin(time * 1.8) * 0.0006;
       
@@ -276,7 +274,6 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
 
     // 5. Delicate Mouth Micro-Parting / Respiration
     if (mouthRef.current) {
-      // Subtle natural breathing parting on inhale
       const respirationPart = Math.max(0, Math.sin(time * 1.8)) * 0.08;
       mouthRef.current.scale.y = 1.0 + respirationPart;
       mouthRef.current.scale.x = 1.0 + Math.sin(time * 0.9) * 0.015;
@@ -284,7 +281,8 @@ function LivingAnimeCharacter({ pointer }: { pointer: React.MutableRefObject<{ x
   });
 
   return (
-    <group ref={groupRef} position={[0, -1.37, 0]} rotation={[0, 0, 0]}>
+    // Default rotation is Math.PI (180 deg) so her face points directly at the camera
+    <group ref={groupRef} position={[0, -1.37, 0]} rotation={[0, Math.PI, 0]}>
       <primitive object={scene} />
     </group>
   );
@@ -295,7 +293,7 @@ function Loader() {
     <Html center>
       <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl glass-panel text-slate-300 font-mono text-xs border border-white/[0.1] shadow-glass-glow">
         <div className="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
-        <span>INITIALIZING LIVING CHARACTER MATRIX...</span>
+        <span>CALIBRATING LIVING ANIME RIG...</span>
       </div>
     </Html>
   );
