@@ -12,7 +12,7 @@ interface CharacterProps {
   pointer: React.MutableRefObject<{ x: number; y: number; vx: number; vy: number }>;
 }
 
-function InteractiveCharacter({ pointer }: CharacterProps) {
+function LivingCharacter({ pointer }: CharacterProps) {
   const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const groupRef = useRef<THREE.Group>(null);
 
@@ -21,6 +21,7 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
     eyelashes?: THREE.Object3D;
     eyeline?: THREE.Object3D;
     eyeIris?: THREE.Object3D;
+    eyeHighlight?: THREE.Object3D;
     brows?: THREE.Object3D;
     hairStrands: THREE.Object3D[];
   }>({ hairStrands: [] });
@@ -28,21 +29,25 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
   // Autonomous physiological blink state
   const blinkState = useRef({
     progress: -1,
-    nextBlinkTime: 2.0,
+    nextBlinkTime: 2.2,
     isDoubleBlink: false,
   });
 
-  // Micro-saccade restlessness state
+  // Micro-saccade restlessness state (darting eyes like a living being)
   const saccadeState = useRef({
     x: 0,
     y: 0,
     nextTime: 1.0,
   });
 
+  // Base eyelash Y position to drop lid down during blink
+  const eyelashBaseY = useRef<number | null>(null);
+  const eyelineBaseY = useRef<number | null>(null);
+
   // Inertial hair secondary spring dynamics
   const hairLag = useRef(0);
 
-  // Calibrate native materials on load & cache mesh references
+  // Calibrate native materials to match Img 3 studio render
   useEffect(() => {
     meshBindings.current.hairStrands = [];
 
@@ -56,71 +61,89 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
           if (!mat.name) return;
           const name = mat.name.toLowerCase();
 
-          // White hair strands
+          // 1. Soft Satin White Hair
           if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
             mat.transparent = false;
             mat.depthWrite = true;
-            mat.color.setRGB(0.92, 0.93, 0.95);
-            mat.roughness = 0.44;
+            mat.color.setRGB(0.93, 0.93, 0.95);
+            mat.roughness = 0.35;
             mat.metalness = 0.04;
           } 
-          // Signature teal hair streak
+          // 2. Signature Teal Bang Streak
           else if (name.includes('material.007')) {
             mat.transparent = false;
             mat.depthWrite = true;
-            mat.color.setRGB(0.18, 0.90, 0.82);
-            mat.roughness = 0.38;
+            mat.color.setRGB(0.20, 0.85, 0.75);
+            mat.roughness = 0.35;
           } 
-          // 2D facial contours
+          // 3. Electric Cyan Eyes with Dark Pupil (Img 3 Match)
+          // CRITICAL: Bind emissiveMap to base map so the pupil stays pitch black!
+          else if (name.includes('eyeiris')) {
+            mat.roughness = 0.08;
+            mat.metalness = 0.0;
+            if (mat.map) {
+              mat.emissiveMap = mat.map;
+            }
+            mat.emissive = new THREE.Color('#00E5FF');
+            mat.emissiveIntensity = 0.38; // Rich luminous glow without washing out the pupil
+          }
+          // 4. Crisp White Eye Highlights
+          else if (name.includes('eyehighlight')) {
+            mat.transparent = true;
+            mat.depthWrite = false;
+            mat.emissive = new THREE.Color('#ffffff');
+            mat.emissiveIntensity = 0.95;
+            mat.roughness = 0.05;
+          }
+          // 5. Clean Sclera Eye White
+          else if (name.includes('eyewhite')) {
+            mat.roughness = 0.20;
+            mat.color.setRGB(0.96, 0.96, 0.98);
+          }
+          // 6. 2D Facial Contours (Lashes, Eyeline, Brows)
           else if (name.includes('faceeyelash') || name.includes('faceeyeline') || name.includes('facebrow')) {
             mat.transparent = true;
             mat.depthWrite = false;
             mat.alphaTest = 0.02;
           } 
-          // Native face skin
-          else if (name.includes('face_00_skin')) {
-            mat.roughness = 0.55;
+          // 7. Soft Natural Anime Skin & Rosy Blush
+          else if (name.includes('face_00_skin') || name.includes('body_00_skin')) {
+            mat.roughness = 0.52;
             mat.metalness = 0.0;
           } 
-          // Body skin: Black modesty undershirt (zero chest skin visible)
-          else if (name.includes('body_00_skin')) {
-            mat.map = null;
-            mat.color.setRGB(0.03, 0.04, 0.06);
-            mat.roughness = 0.95;
-            mat.metalness = 0.0;
-            mat.needsUpdate = true;
-          } 
-          // Leather collar
+          // 8. Rich Leather Collar
           else if (name.includes('leather')) {
             mat.color.setRGB(0.42, 0.18, 0.14);
-            mat.roughness = 0.36;
+            mat.roughness = 0.35;
           } 
-          // Gold buckle
-          else if (name.includes('metal')) {
-            mat.color.setRGB(0.95, 0.84, 0.50);
-            mat.metalness = 0.88;
-            mat.roughness = 0.22;
+          // 9. Polished Gold Buckle
+          else if (name.includes('metal') || name.includes('material.008')) {
+            mat.color.setRGB(0.95, 0.82, 0.45);
+            mat.metalness = 0.85;
+            mat.roughness = 0.20;
           } 
-          // White silk shirt
-          else if (name.includes('silk') || name.includes('material')) {
-            mat.color.setRGB(0.94, 0.94, 0.96);
-            mat.roughness = 0.50;
-          } 
-          // Glowing cyan anime eyes
-          else if (name.includes('eyeiris')) {
-            mat.emissive = new THREE.Color('#00F0FF');
-            mat.emissiveIntensity = 0.90;
-            mat.roughness = 0.06;
+          // 10. White Silk Shirt & Bandages
+          else if (name.includes('silk') || name.includes('ducktape') || name.includes('material')) {
+            mat.color.setRGB(0.95, 0.95, 0.96);
+            mat.roughness = 0.45;
           }
         });
 
-        // Cache mesh references
+        // Cache mesh references for animation
         const objName = child.name;
-        if (objName.includes('FaceEyelash')) meshBindings.current.eyelashes = child;
-        else if (objName.includes('FaceEyeline')) meshBindings.current.eyeline = child;
-        else if (objName.includes('EyeIris')) meshBindings.current.eyeIris = child;
-        else if (objName.includes('FaceBrow')) meshBindings.current.brows = child;
-        else if (objName.includes('Nurbs') || objName.includes('Cylinder.011')) {
+        if (objName.includes('FaceEyelash')) {
+          meshBindings.current.eyelashes = child;
+          if (eyelashBaseY.current === null) eyelashBaseY.current = child.position.y;
+        } else if (objName.includes('FaceEyeline')) {
+          meshBindings.current.eyeline = child;
+          if (eyelineBaseY.current === null) eyelineBaseY.current = child.position.y;
+        } else if (objName.includes('EyeIris')) {
+          meshBindings.current.eyeIris = child;
+        } else if (objName.includes('EyeHighlight')) {
+          meshBindings.current.eyeHighlight = child;
+        } else if (objName.includes('FaceBrow')) {
+          meshBindings.current.brows = child;
+        } else if (objName.includes('Nurbs') || objName.includes('Cylinder.011')) {
           meshBindings.current.hairStrands.push(child);
         }
       }
@@ -128,44 +151,73 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
   }, [scene]);
 
   // ═════════════════════════════════════════════════════════════════
-  // PROCEDURAL IK & BIOMECHANICAL KINEMATICS LOOP
+  // LIVING BIOMECHANICAL ANIMATION LOOP: EYES, BREATHING & BLINKING
   // ═════════════════════════════════════════════════════════════════
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
-    const mouseX = pointer.current.x; // -1 to 1
-    const mouseY = pointer.current.y; // -1 to 1
-    const mouseVx = pointer.current.vx; // velocity
+    const mouseX = pointer.current.x; // Normalized: -1 to 1
+    const mouseY = pointer.current.y; // Normalized: -1 to 1
+    const mouseVx = pointer.current.vx; // Mouse velocity
 
-    // 1. Gentle Diaphragm Respiration (locked strictly to upper bust)
-    const breath = Math.sin(time * 1.8) * 0.002;
+    // 1. Organic Diaphragm Breathing (Natural respiratory frequency ~16 breaths/min)
+    const breathCycle = time * 1.9;
+    const breathOffset = (Math.sin(breathCycle) + 0.3 * Math.sin(breathCycle * 2)) * 0.005;
+    const breathNod = Math.sin(breathCycle) * 0.012;
 
-    // 2. Multi-Joint Inverse Kinematics (IK) Head & Eye Orientation
+    // 2. Head Kinematics & Cursor Tracking
     // Base forward orientation facing camera is Math.PI (180°)
-    const targetYaw = Math.PI - mouseX * 0.20;
-    // Clamped strictly to prevent any lower body exposure
-    const targetPitch = THREE.MathUtils.clamp(mouseY * 0.10, -0.08, 0.10);
-    const targetRoll = -mouseX * 0.025;
+    const targetYaw = Math.PI - mouseX * 0.22;
+    const targetPitch = mouseY * 0.14 + breathNod;
+    const targetRoll = -mouseX * 0.03;
 
-    // 3. Smooth Damped Multi-Joint Kinematics on Root Group
     if (groupRef.current) {
-      groupRef.current.position.y = -1.35 + breath;
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 4.2 * delta);
+      groupRef.current.position.y = -1.35 + breathOffset;
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 4.5 * delta);
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 4.0 * delta);
       groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.5 * delta);
     }
 
-    // 4. Secondary Mass-Spring Physics on Hair Strands
-    hairLag.current = THREE.MathUtils.lerp(
-      hairLag.current,
-      -mouseVx * 0.12 + Math.sin(time * 2.4) * 0.014,
-      6.0 * delta
-    );
-    meshBindings.current.hairStrands.forEach((strand, idx) => {
-      const strandPhase = idx * 0.08;
-      strand.rotation.z = hairLag.current * (1.0 + Math.sin(time * 3.0 + strandPhase) * 0.2);
-    });
+    // 3. Dynamic Eye Movement (Pupils visibly track cursor + involuntary micro-saccades)
+    const saccade = saccadeState.current;
+    if (time > saccade.nextTime) {
+      // Living eye micro-drift
+      saccade.x = (Math.random() - 0.5) * 0.0022;
+      saccade.y = (Math.random() - 0.5) * 0.0016;
+      saccade.nextTime = time + 0.8 + Math.random() * 1.8;
+    }
 
-    // 5. Physiological Curvilinear Eyelid Blinking
+    // Generous, clearly visible gaze amplitude
+    const targetGazeX = -mouseX * 0.0055 + saccade.x;
+    const targetGazeY = mouseY * 0.0040 + saccade.y;
+
+    // Move both Iris and Specular Highlights together as a unified eye cluster
+    if (meshBindings.current.eyeIris) {
+      meshBindings.current.eyeIris.position.x = THREE.MathUtils.lerp(
+        meshBindings.current.eyeIris.position.x,
+        targetGazeX,
+        10.0 * delta
+      );
+      meshBindings.current.eyeIris.position.y = THREE.MathUtils.lerp(
+        meshBindings.current.eyeIris.position.y,
+        targetGazeY,
+        10.0 * delta
+      );
+    }
+
+    if (meshBindings.current.eyeHighlight) {
+      meshBindings.current.eyeHighlight.position.x = THREE.MathUtils.lerp(
+        meshBindings.current.eyeHighlight.position.x,
+        targetGazeX,
+        10.0 * delta
+      );
+      meshBindings.current.eyeHighlight.position.y = THREE.MathUtils.lerp(
+        meshBindings.current.eyeHighlight.position.y,
+        targetGazeY,
+        10.0 * delta
+      );
+    }
+
+    // 4. Physiological Curvilinear Eyelid Blinking
     const blink = blinkState.current;
     if (time > blink.nextBlinkTime && blink.progress < 0) {
       blink.progress = 0;
@@ -175,14 +227,17 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
     let blinkScaleY = 1.0;
     if (blink.progress >= 0) {
       blink.progress += 14.0 * delta;
-      if (blink.progress <= 0.45) {
-        const t = blink.progress / 0.45;
-        blinkScaleY = 1.0 - t * t * 0.96;
-      } else if (blink.progress <= 0.55) {
-        blinkScaleY = 0.04;
+      if (blink.progress <= 0.40) {
+        // Fast snap close (60ms)
+        const t = blink.progress / 0.40;
+        blinkScaleY = 1.0 - t * t * 0.98;
+      } else if (blink.progress <= 0.52) {
+        // Closed hold
+        blinkScaleY = 0.02;
       } else if (blink.progress <= 1.0) {
-        const t = (blink.progress - 0.55) / 0.45;
-        blinkScaleY = 0.04 + (1.0 - Math.pow(1.0 - t, 3)) * 0.96;
+        // Cubic ease-out open (110ms)
+        const t = (blink.progress - 0.52) / 0.48;
+        blinkScaleY = 0.02 + (1.0 - Math.pow(1.0 - t, 3)) * 0.98;
       } else {
         if (blink.isDoubleBlink) {
           blink.progress = 0;
@@ -194,35 +249,19 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
       }
     }
 
-    if (meshBindings.current.eyelashes) meshBindings.current.eyelashes.scale.y = blinkScaleY;
-    if (meshBindings.current.eyeline) meshBindings.current.eyeline.scale.y = blinkScaleY;
-
-    // 6. Optical Saccadic Look-At IK (Eyes track cursor with micro-saccades)
-    const saccade = saccadeState.current;
-    if (time > saccade.nextTime) {
-      saccade.x = (Math.random() - 0.5) * 0.0006;
-      saccade.y = (Math.random() - 0.5) * 0.0004;
-      saccade.nextTime = time + 0.9 + Math.random() * 1.5;
+    // Apply lid closure + vertical drop to seal the eye
+    const closeAmount = 1.0 - blinkScaleY;
+    if (meshBindings.current.eyelashes && eyelashBaseY.current !== null) {
+      meshBindings.current.eyelashes.scale.y = blinkScaleY;
+      meshBindings.current.eyelashes.position.y = eyelashBaseY.current - closeAmount * 0.004;
+    }
+    if (meshBindings.current.eyeline && eyelineBaseY.current !== null) {
+      meshBindings.current.eyeline.scale.y = blinkScaleY;
+      meshBindings.current.eyeline.position.y = eyelineBaseY.current - closeAmount * 0.004;
     }
 
-    const targetGazeX = -mouseX * 0.0022;
-    const targetGazeY = mouseY * 0.0016;
-
-    if (meshBindings.current.eyeIris) {
-      meshBindings.current.eyeIris.position.x = THREE.MathUtils.lerp(
-        meshBindings.current.eyeIris.position.x,
-        targetGazeX + saccade.x,
-        8.0 * delta
-      );
-      meshBindings.current.eyeIris.position.y = THREE.MathUtils.lerp(
-        meshBindings.current.eyeIris.position.y,
-        targetGazeY + saccade.y,
-        8.0 * delta
-      );
-    }
-
-    // 7. Eyebrow Emotional Flexors
-    const targetBrowY = Math.max(0, mouseY) * 0.0015;
+    // 5. Eyebrow Expressive Elevation
+    const targetBrowY = Math.max(0, mouseY) * 0.0020 - closeAmount * 0.0010;
     if (meshBindings.current.brows) {
       meshBindings.current.brows.position.y = THREE.MathUtils.lerp(
         meshBindings.current.brows.position.y,
@@ -230,6 +269,17 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
         6.0 * delta
       );
     }
+
+    // 6. Secondary Mass-Spring Physics on Hair Strands
+    hairLag.current = THREE.MathUtils.lerp(
+      hairLag.current,
+      -mouseVx * 0.14 + Math.sin(time * 2.4) * 0.016,
+      6.0 * delta
+    );
+    meshBindings.current.hairStrands.forEach((strand, idx) => {
+      const strandPhase = idx * 0.08;
+      strand.rotation.z = hairLag.current * (1.0 + Math.sin(time * 3.0 + strandPhase) * 0.2);
+    });
   });
 
   return (
@@ -244,7 +294,7 @@ function Loader() {
     <Html center>
       <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl glass-panel text-slate-300 font-mono text-xs border border-white/[0.1] shadow-glass-glow">
         <div className="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
-        <span>INITIALIZING GPU HERO RUNTIME...</span>
+        <span>INITIALIZING CINEMATIC SHADERS...</span>
       </div>
     </Html>
   );
@@ -271,52 +321,65 @@ export function HeroCanvas() {
     <div 
       className="absolute inset-0 z-0 overflow-hidden pointer-events-auto"
       style={{
-        background: 'radial-gradient(circle at 50% 36%, #2e3440 0%, #1c2028 48%, #0a0c10 100%)',
+        // Exact dark studio vignette matching Img 3
+        background: 'radial-gradient(circle at 50% 40%, #252830 0%, #15171d 55%, #08090c 100%)',
       }}
       onPointerMove={handlePointerMove}
     >
       <Canvas
-        camera={{ position: [0, 0.12, 0.58], fov: 36 }}
+        // Exact portrait bust framing matching Img 3
+        camera={{ position: [0, 0.07, 0.68], fov: 37 }}
         shadows
         gl={{
           powerPreference: 'high-performance',
           antialias: true,
           alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
+          toneMappingExposure: 1.12,
         }}
       >
-        {/* Studio 4-Point Lighting */}
-        <ambientLight intensity={0.65} color="#282c38" />
+        {/* Ambient Studio Radiance */}
+        <ambientLight intensity={0.80} color="#2e3340" />
         
-        {/* Key Studio Light */}
+        {/* 1. Key Studio Light (Front-Right Warm Sun, matching Img 3) */}
         <directionalLight 
-          position={[0.35, 1.85, 1.25]} 
-          intensity={2.3} 
-          color="#ffeedd" 
+          position={[0.65, 1.4, 1.4]} 
+          intensity={2.8} 
+          color="#fff7ee" 
           castShadow 
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
           shadow-bias={-0.0001}
         />
         
-        {/* Fill Light */}
-        <directionalLight position={[-1.2, 1.3, 0.9]} intensity={0.8} color="#8cb4e8" />
+        {/* 2. Fill Light (Front-Left Cool Soft Tone, matching Img 3) */}
+        <directionalLight 
+          position={[-0.85, 1.1, 1.1]} 
+          intensity={1.2} 
+          color="#95b5e0" 
+        />
         
-        {/* Under-Chin Warm Bounce Light */}
-        <directionalLight position={[0, 0.6, 0.8]} intensity={0.4} color="#d0a888" />
+        {/* 3. Hair Rim Light (Top-Back Pure White for hair edge sheen, matching Img 3) */}
+        <directionalLight 
+          position={[0.0, 2.2, -1.2]} 
+          intensity={4.2} 
+          color="#ffffff" 
+        />
         
-        {/* Hair Crest Rim Lights */}
-        <directionalLight position={[0, 2.3, -1.2]} intensity={2.8} color="#ffffff" />
-        <directionalLight position={[0, 2.6, 0.2]} intensity={2.2} color="#ffffff" />
+        {/* 4. Under-Chin Warm Bounce Light (matching Img 3 soft peach chin shadow) */}
+        <directionalLight 
+          position={[0.0, 0.4, 0.9]} 
+          intensity={0.6} 
+          color="#ffd8c0" 
+        />
 
         <Suspense fallback={<Loader />}>
-          <InteractiveCharacter pointer={pointer} />
+          <LivingCharacter pointer={pointer} />
         </Suspense>
       </Canvas>
 
-      {/* Gentle bottom vignette to cleanly anchor the portrait bust */}
-      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-void via-void/70 to-transparent pointer-events-none z-10" />
+      {/* Gentle bottom fade into void */}
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-void via-void/70 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
