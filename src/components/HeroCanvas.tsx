@@ -1,41 +1,18 @@
 'use client';
 
 import React, { useRef, useEffect, Suspense } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { ChapterId, STORY_BEATS } from '@/types/story';
 
-// Pre-warm the GLTF Draco model
+// Pre-warm the character model
 useGLTF.preload('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
-
-interface HeroCanvasProps {
-  currentChapter: ChapterId;
-  hoveredProject?: string | null;
-}
 
 interface CharacterProps {
   pointer: React.MutableRefObject<{ x: number; y: number; vx: number; vy: number }>;
-  currentChapter: ChapterId;
-  hoveredProject?: string | null;
 }
 
-// Camera choreography controller
-function CameraRig({ currentChapter }: { currentChapter: ChapterId }) {
-  const { camera } = useThree();
-  const currentBeat = STORY_BEATS.find((b) => b.chapter === currentChapter) || STORY_BEATS[0];
-
-  useFrame((_, delta) => {
-    const [targetX, targetY, targetZ] = currentBeat.cameraOffset;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 2.5 * delta);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 2.5 * delta);
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 2.5 * delta);
-  });
-
-  return null;
-}
-
-function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }: CharacterProps) {
+function InteractiveCharacter({ pointer }: CharacterProps) {
   const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const groupRef = useRef<THREE.Group>(null);
 
@@ -79,7 +56,7 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
           if (!mat.name) return;
           const name = mat.name.toLowerCase();
 
-          // White braided & flowing hair
+          // White hair strands
           if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
             mat.transparent = false;
             mat.depthWrite = true;
@@ -94,7 +71,7 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
             mat.color.setRGB(0.18, 0.90, 0.82);
             mat.roughness = 0.38;
           } 
-          // 2D facial contours (clean alpha)
+          // 2D facial contours
           else if (name.includes('faceeyelash') || name.includes('faceeyeline') || name.includes('facebrow')) {
             mat.transparent = true;
             mat.depthWrite = false;
@@ -143,7 +120,7 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
   }, [scene]);
 
   // ═════════════════════════════════════════════════════════════════
-  // CINEMATIC STORYTELLING KINEMATICS
+  // PROCEDURAL IK & BIOMECHANICAL KINEMATICS LOOP
   // ═════════════════════════════════════════════════════════════════
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
@@ -151,50 +128,21 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
     const mouseY = pointer.current.y; // -1 to 1
     const mouseVx = pointer.current.vx; // velocity
 
-    // 1. Asymmetric Diaphragm Breathing
+    // 1. Organic Diaphragm Respiration
     const breath = (Math.sin(time * 1.8) + 0.35 * Math.sin(time * 3.6)) * 0.0035;
 
-    // 2. Base Character Posture & Look-At Calculations
-    // Forward orientation baseline is Math.PI (180°)
-    let targetYaw = Math.PI - mouseX * 0.22;
-    let targetPitch = mouseY * 0.14;
-    let targetRoll = -mouseX * 0.03;
-    let targetGazeX = -mouseX * 0.0022;
-    let targetGazeY = mouseY * 0.0016;
-    let targetBrowY = Math.max(0, mouseY) * 0.0015;
-    let eyeSquintFactor = 1.0;
-
-    // Chapter-specific narrative posture offsets
-    if (currentChapter === 'philosophy') {
-      targetYaw += 0.08;
-      targetPitch += 0.03;
-      targetRoll -= 0.02;
-    } else if (currentChapter === 'vault') {
-      targetYaw -= 0.06;
-      targetPitch -= 0.04; // Look slightly down toward the project cards
-      targetGazeY -= 0.002;
-    } else if (currentChapter === 'uplink') {
-      targetPitch += 0.04;
-      eyeSquintFactor = 0.85; // Warm attentive expression
-    }
-
-    // Reactive gaze override when user is actively hovering a project card
-    if (hoveredProject) {
-      targetPitch -= 0.08; // Direct gaze downward to the card
-      targetGazeY -= 0.0035;
-      targetBrowY += 0.002;
-    } else {
-      // Natural idle sway
-      targetYaw += Math.sin(time * 0.8) * 0.010;
-      targetPitch += Math.cos(time * 1.1) * 0.006;
-    }
+    // 2. Multi-Joint Inverse Kinematics (IK) Head & Eye Orientation
+    // Base forward orientation facing camera is Math.PI (180°)
+    const targetYaw = Math.PI - mouseX * 0.22;
+    const targetPitch = mouseY * 0.14;
+    const targetRoll = -mouseX * 0.03;
 
     // 3. Smooth Damped Multi-Joint Kinematics on Root Group
     if (groupRef.current) {
       groupRef.current.position.y = -1.35 + breath;
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 4.0 * delta);
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 3.8 * delta);
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.2 * delta);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetYaw, 4.2 * delta);
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetPitch, 4.0 * delta);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.5 * delta);
     }
 
     // 4. Secondary Mass-Spring Physics on Hair Strands
@@ -237,17 +185,19 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
       }
     }
 
-    const finalEyelidScaleY = Math.min(blinkScaleY, eyeSquintFactor);
-    if (meshBindings.current.eyelashes) meshBindings.current.eyelashes.scale.y = finalEyelidScaleY;
-    if (meshBindings.current.eyeline) meshBindings.current.eyeline.scale.y = finalEyelidScaleY;
+    if (meshBindings.current.eyelashes) meshBindings.current.eyelashes.scale.y = blinkScaleY;
+    if (meshBindings.current.eyeline) meshBindings.current.eyeline.scale.y = blinkScaleY;
 
-    // 6. Optical Saccadic Look-At IK
+    // 6. Optical Saccadic Look-At IK (Eyes track cursor with micro-saccades)
     const saccade = saccadeState.current;
     if (time > saccade.nextTime) {
       saccade.x = (Math.random() - 0.5) * 0.0006;
       saccade.y = (Math.random() - 0.5) * 0.0004;
       saccade.nextTime = time + 0.9 + Math.random() * 1.5;
     }
+
+    const targetGazeX = -mouseX * 0.0022;
+    const targetGazeY = mouseY * 0.0016;
 
     if (meshBindings.current.eyeIris) {
       meshBindings.current.eyeIris.position.x = THREE.MathUtils.lerp(
@@ -262,7 +212,8 @@ function StorytellingAnimeCharacter({ pointer, currentChapter, hoveredProject }:
       );
     }
 
-    // 7. Eyebrow Flexor Movements
+    // 7. Eyebrow Emotional Flexors
+    const targetBrowY = Math.max(0, mouseY) * 0.0015;
     if (meshBindings.current.brows) {
       meshBindings.current.brows.position.y = THREE.MathUtils.lerp(
         meshBindings.current.brows.position.y,
@@ -284,13 +235,13 @@ function Loader() {
     <Html center>
       <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl glass-panel text-slate-300 font-mono text-xs border border-white/[0.1] shadow-glass-glow">
         <div className="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
-        <span>INITIALIZING VIRTUAL COMPANION...</span>
+        <span>INITIALIZING GPU HERO RUNTIME...</span>
       </div>
     </Html>
   );
 }
 
-export function HeroCanvas({ currentChapter, hoveredProject }: HeroCanvasProps) {
+export function HeroCanvas() {
   const pointer = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
   const lastMouse = useRef({ x: 0, y: 0 });
 
@@ -326,12 +277,10 @@ export function HeroCanvas({ currentChapter, hoveredProject }: HeroCanvasProps) 
           toneMappingExposure: 1.05,
         }}
       >
-        <CameraRig currentChapter={currentChapter} />
-
-        {/* Studio Lighting */}
+        {/* Studio 4-Point Lighting */}
         <ambientLight intensity={0.65} color="#282c38" />
         
-        {/* Key Light */}
+        {/* Key Studio Light */}
         <directionalLight 
           position={[0.35, 1.85, 1.25]} 
           intensity={2.3} 
@@ -345,7 +294,7 @@ export function HeroCanvas({ currentChapter, hoveredProject }: HeroCanvasProps) 
         {/* Fill Light */}
         <directionalLight position={[-1.2, 1.3, 0.9]} intensity={0.8} color="#8cb4e8" />
         
-        {/* Bounce Light */}
+        {/* Under-Chin Warm Bounce Light */}
         <directionalLight position={[0, 0.6, 0.8]} intensity={0.4} color="#d0a888" />
         
         {/* Hair Crest Rim Lights */}
@@ -353,11 +302,7 @@ export function HeroCanvas({ currentChapter, hoveredProject }: HeroCanvasProps) 
         <directionalLight position={[0, 2.6, 0.2]} intensity={2.2} color="#ffffff" />
 
         <Suspense fallback={<Loader />}>
-          <StorytellingAnimeCharacter 
-            pointer={pointer} 
-            currentChapter={currentChapter} 
-            hoveredProject={hoveredProject} 
-          />
+          <InteractiveCharacter pointer={pointer} />
         </Suspense>
       </Canvas>
     </div>
