@@ -77,10 +77,18 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
             mat.depthWrite = false;
             mat.alphaTest = 0.02;
           } 
-          // Native skin
-          else if (name.includes('face_00_skin') || name.includes('body_00_skin')) {
+          // Native face skin
+          else if (name.includes('face_00_skin')) {
             mat.roughness = 0.55;
             mat.metalness = 0.0;
+          } 
+          // Body skin: Black modesty undershirt (zero chest skin visible)
+          else if (name.includes('body_00_skin')) {
+            mat.map = null;
+            mat.color.setRGB(0.03, 0.04, 0.06);
+            mat.roughness = 0.95;
+            mat.metalness = 0.0;
+            mat.needsUpdate = true;
           } 
           // Leather collar
           else if (name.includes('leather')) {
@@ -268,7 +276,7 @@ export function HeroCanvas() {
       onPointerMove={handlePointerMove}
     >
       <Canvas
-        camera={{ position: [0, 0.05, 0.72], fov: 38 }}
+        camera={{ position: [0, 0.12, 0.58], fov: 36 }}
         shadows
         gl={{
           powerPreference: 'high-performance',
