@@ -128,14 +128,15 @@ function InteractiveCharacter({ pointer }: CharacterProps) {
     const mouseY = pointer.current.y; // -1 to 1
     const mouseVx = pointer.current.vx; // velocity
 
-    // 1. Organic Diaphragm Respiration
-    const breath = (Math.sin(time * 1.8) + 0.35 * Math.sin(time * 3.6)) * 0.0035;
+    // 1. Gentle Diaphragm Respiration (locked strictly to upper bust)
+    const breath = Math.sin(time * 1.8) * 0.002;
 
     // 2. Multi-Joint Inverse Kinematics (IK) Head & Eye Orientation
     // Base forward orientation facing camera is Math.PI (180°)
-    const targetYaw = Math.PI - mouseX * 0.22;
-    const targetPitch = mouseY * 0.14;
-    const targetRoll = -mouseX * 0.03;
+    const targetYaw = Math.PI - mouseX * 0.20;
+    // Clamped strictly to prevent any lower body exposure
+    const targetPitch = THREE.MathUtils.clamp(mouseY * 0.10, -0.08, 0.10);
+    const targetRoll = -mouseX * 0.025;
 
     // 3. Smooth Damped Multi-Joint Kinematics on Root Group
     if (groupRef.current) {
@@ -305,6 +306,9 @@ export function HeroCanvas() {
           <InteractiveCharacter pointer={pointer} />
         </Suspense>
       </Canvas>
+
+      {/* Gentle bottom vignette to cleanly anchor the portrait bust */}
+      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-void via-void/70 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
