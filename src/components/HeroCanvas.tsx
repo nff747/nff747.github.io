@@ -65,39 +65,37 @@ function LivingCharacter({ pointer }: CharacterProps) {
           if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
             mat.transparent = false;
             mat.depthWrite = true;
-            mat.color.setRGB(0.93, 0.93, 0.95);
-            mat.roughness = 0.35;
-            mat.metalness = 0.04;
+            mat.color.setRGB(0.88, 0.89, 0.92);
+            mat.roughness = 0.48;
+            mat.metalness = 0.02;
           } 
           // 2. Signature Teal Bang Streak
           else if (name.includes('material.007')) {
             mat.transparent = false;
             mat.depthWrite = true;
-            mat.color.setRGB(0.20, 0.85, 0.75);
-            mat.roughness = 0.35;
+            mat.color.setRGB(0.18, 0.88, 0.80);
+            mat.roughness = 0.40;
           } 
           // 3. Electric Cyan Eyes with Dark Pupil (Img 3 Match)
-          // CRITICAL: Bind emissiveMap to base map so the pupil stays pitch black!
+          // Preserve GLTF native emissiveTexture (Image 2) which has black pupil & black sclera!
           else if (name.includes('eyeiris')) {
-            mat.roughness = 0.08;
+            mat.roughness = 0.06;
             mat.metalness = 0.0;
-            if (mat.map) {
-              mat.emissiveMap = mat.map;
-            }
-            mat.emissive = new THREE.Color('#00E5FF');
-            mat.emissiveIntensity = 0.38; // Rich luminous glow without washing out the pupil
+            mat.emissive = new THREE.Color(0x00f0ff);
+            mat.emissiveIntensity = 0.70;
           }
-          // 4. Crisp White Eye Highlights
+          // 4. Crisp White Eye Highlights (Sharp specular reflection like Img 3)
           else if (name.includes('eyehighlight')) {
-            mat.transparent = true;
+            mat.color.setRGB(1.0, 1.0, 1.0);
+            mat.roughness = 0.15;
+            mat.metalness = 0.0;
+            mat.emissive = new THREE.Color(0x000000);
+            mat.emissiveIntensity = 0.0;
             mat.depthWrite = false;
-            mat.emissive = new THREE.Color('#ffffff');
-            mat.emissiveIntensity = 0.95;
-            mat.roughness = 0.05;
           }
           // 5. Clean Sclera Eye White
           else if (name.includes('eyewhite')) {
-            mat.roughness = 0.20;
+            mat.roughness = 0.30;
             mat.color.setRGB(0.96, 0.96, 0.98);
           }
           // 6. 2D Facial Contours (Lashes, Eyeline, Brows)
@@ -106,26 +104,33 @@ function LivingCharacter({ pointer }: CharacterProps) {
             mat.depthWrite = false;
             mat.alphaTest = 0.02;
           } 
-          // 7. Soft Natural Anime Skin & Rosy Blush
-          else if (name.includes('face_00_skin') || name.includes('body_00_skin')) {
-            mat.roughness = 0.52;
+          // 7. Modesty Undershirt (Zero chest visibility even when zoomed out)
+          else if (name.includes('body_00_skin')) {
+            mat.color.setRGB(0.06, 0.06, 0.08);
+            mat.roughness = 0.85;
+            mat.metalness = 0.0;
+          }
+          // 8. Soft Natural Anime Face Skin & Cheek Blush (Img 3 Match)
+          else if (name.includes('face_00_skin')) {
+            mat.roughness = 0.58;
+            mat.color.setRGB(1.0, 0.95, 0.95);
             mat.metalness = 0.0;
           } 
-          // 8. Rich Leather Collar
+          // 9. Rich Leather Collar
           else if (name.includes('leather')) {
-            mat.color.setRGB(0.42, 0.18, 0.14);
-            mat.roughness = 0.35;
+            mat.color.setRGB(0.38, 0.16, 0.12);
+            mat.roughness = 0.40;
           } 
-          // 9. Polished Gold Buckle
+          // 10. Polished Gold Buckle
           else if (name.includes('metal') || name.includes('material.008')) {
             mat.color.setRGB(0.95, 0.82, 0.45);
             mat.metalness = 0.85;
-            mat.roughness = 0.20;
+            mat.roughness = 0.25;
           } 
-          // 10. White Silk Shirt & Bandages
+          // 11. White Silk Shirt & Bandages
           else if (name.includes('silk') || name.includes('ducktape') || name.includes('material')) {
-            mat.color.setRGB(0.95, 0.95, 0.96);
-            mat.roughness = 0.45;
+            mat.color.setRGB(0.90, 0.92, 0.94);
+            mat.roughness = 0.48;
           }
         });
 
@@ -328,24 +333,24 @@ export function HeroCanvas() {
     >
       <Canvas
         // Exact portrait bust framing matching Img 3
-        camera={{ position: [0, 0.07, 0.68], fov: 37 }}
+        camera={{ position: [0, 0.11, 0.60], fov: 35 }}
         shadows
         gl={{
           powerPreference: 'high-performance',
           antialias: true,
           alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.12,
+          toneMappingExposure: 0.98,
         }}
       >
         {/* Ambient Studio Radiance */}
-        <ambientLight intensity={0.80} color="#2e3340" />
+        <ambientLight intensity={0.45} color="#282c38" />
         
         {/* 1. Key Studio Light (Front-Right Warm Sun, matching Img 3) */}
         <directionalLight 
-          position={[0.65, 1.4, 1.4]} 
-          intensity={2.8} 
-          color="#fff7ee" 
+          position={[0.35, 1.85, 1.25]} 
+          intensity={1.7} 
+          color="#ffeedd" 
           castShadow 
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -354,23 +359,30 @@ export function HeroCanvas() {
         
         {/* 2. Fill Light (Front-Left Cool Soft Tone, matching Img 3) */}
         <directionalLight 
-          position={[-0.85, 1.1, 1.1]} 
-          intensity={1.2} 
-          color="#95b5e0" 
+          position={[-1.2, 1.3, 0.9]} 
+          intensity={0.45} 
+          color="#8cb4e8" 
         />
         
         {/* 3. Hair Rim Light (Top-Back Pure White for hair edge sheen, matching Img 3) */}
         <directionalLight 
-          position={[0.0, 2.2, -1.2]} 
-          intensity={4.2} 
+          position={[0.0, 2.3, -1.2]} 
+          intensity={1.8} 
+          color="#ffffff" 
+        />
+
+        {/* 4. Top Hair Rim Light */}
+        <directionalLight 
+          position={[0.0, 2.6, 0.2]} 
+          intensity={1.5} 
           color="#ffffff" 
         />
         
-        {/* 4. Under-Chin Warm Bounce Light (matching Img 3 soft peach chin shadow) */}
+        {/* 5. Under-Chin Warm Bounce Light (matching Img 3 soft peach chin shadow) */}
         <directionalLight 
-          position={[0.0, 0.4, 0.9]} 
-          intensity={0.6} 
-          color="#ffd8c0" 
+          position={[0.0, 0.6, 0.8]} 
+          intensity={0.30} 
+          color="#ffd0b0" 
         />
 
         <Suspense fallback={<Loader />}>
@@ -378,8 +390,8 @@ export function HeroCanvas() {
         </Suspense>
       </Canvas>
 
-      {/* Gentle bottom fade into void */}
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-void via-void/70 to-transparent pointer-events-none z-10" />
+      {/* Gentle bottom fade into void to strictly prevent any lower chest exposure */}
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-void via-void/80 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
