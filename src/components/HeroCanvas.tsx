@@ -10,9 +10,10 @@ useGLTF.preload('/models/anime_character.glb', 'https://www.gstatic.com/draco/ve
 
 interface CharacterProps {
   pointer: React.MutableRefObject<{ x: number; y: number; vx: number; vy: number }>;
+  activeChapter?: number;
 }
 
-function LivingCharacter({ pointer }: CharacterProps) {
+function LivingCharacter({ pointer, activeChapter = 0 }: CharacterProps) {
   const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const groupRef = useRef<THREE.Group>(null);
 
@@ -33,13 +34,6 @@ function LivingCharacter({ pointer }: CharacterProps) {
     isDoubleBlink: false,
   });
 
-  // Micro-saccade restlessness state (darting eyes like a living being)
-  const saccadeState = useRef({
-    x: 0,
-    y: 0,
-    nextTime: 1.0,
-  });
-
   // Base eyelash Y position to drop lid down during blink
   const eyelashBaseY = useRef<number | null>(null);
   const eyelineBaseY = useRef<number | null>(null);
@@ -53,8 +47,10 @@ function LivingCharacter({ pointer }: CharacterProps) {
 
     scene.traverse((child: any) => {
       if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+        // Prevent hair bangs from casting dark shadow maps onto eyes
+        const isEye = child.name.toLowerCase().includes('eye');
+        child.castShadow = !isEye;
+        child.receiveShadow = !isEye;
 
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.MeshStandardMaterial) => {
@@ -77,12 +73,14 @@ function LivingCharacter({ pointer }: CharacterProps) {
             mat.roughness = 0.40;
           } 
           // 3. Electric Cyan Eyes with Dark Pupil (Img 3 Match)
-          // Preserve GLTF native emissiveTexture (Image 2) which has black pupil & black sclera!
+          // Uses GLTF emissiveTexture with alpha cutoff to eliminate white fringe edge
           else if (name.includes('eyeiris')) {
             mat.roughness = 0.06;
             mat.metalness = 0.0;
             mat.emissive = new THREE.Color(0x00e5ff);
-            mat.emissiveIntensity = 0.65;
+            mat.emissiveIntensity = 0.60;
+            mat.alphaTest = 0.155;
+            mat.transparent = true;
             if (mat.map) {
               mat.map.generateMipmaps = true;
               mat.map.minFilter = THREE.LinearMipmapLinearFilter;
@@ -99,10 +97,10 @@ function LivingCharacter({ pointer }: CharacterProps) {
           // 4. Crisp White Eye Highlights (Sharp specular reflection like Img 3)
           else if (name.includes('eyehighlight')) {
             mat.color.setRGB(1.0, 1.0, 1.0);
-            mat.roughness = 0.15;
+            mat.emissive = new THREE.Color('#ffffff');
+            mat.emissiveIntensity = 1.0;
+            mat.roughness = 0.0;
             mat.metalness = 0.0;
-            mat.emissive = new THREE.Color(0x000000);
-            mat.emissiveIntensity = 0.0;
             mat.depthWrite = false;
             mat.transparent = true;
           }
@@ -147,7 +145,7 @@ function LivingCharacter({ pointer }: CharacterProps) {
           }
         });
 
-        // Cache mesh references for animation
+        // Cache mesh references for animation & establish proper rendering order
         const objName = child.name;
         if (objName.includes('FaceEyelash')) {
           meshBindings.current.eyelashes = child;
@@ -157,8 +155,15 @@ function LivingCharacter({ pointer }: CharacterProps) {
           if (eyelineBaseY.current === null) eyelineBaseY.current = child.position.y;
         } else if (objName.includes('EyeIris')) {
           meshBindings.current.eyeIris = child;
+          child.renderOrder = 5;
+          child.position.set(0, 0, 0);
         } else if (objName.includes('EyeHighlight')) {
           meshBindings.current.eyeHighlight = child;
+          child.renderOrder = 10;
+          child.position.set(0, 0, 0);
+        } else if (objName.includes('EyeWhite')) {
+          child.renderOrder = 1;
+          child.position.set(0, 0, 0);
         } else if (objName.includes('FaceBrow')) {
           meshBindings.current.brows = child;
         } else if (objName.includes('Nurbs') || objName.includes('Cylinder.011')) {
@@ -183,8 +188,9 @@ function LivingCharacter({ pointer }: CharacterProps) {
     const breathNod = Math.sin(breathCycle) * 0.012;
 
     // 2. Head Kinematics & Cursor Tracking
-    // Base forward orientation facing camera is Math.PI (180°)
-    const targetYaw = Math.PI - mouseX * 0.22;
+    // Natural head orientation biases subtly toward active deck
+    const chapterYawBias = activeChapter === 1 ? 0.08 : activeChapter === 2 ? -0.08 : 0.0;
+    const targetYaw = Math.PI - mouseX * 0.22 + chapterYawBias;
     const targetPitch = mouseY * 0.14 + breathNod;
     const targetRoll = -mouseX * 0.03;
 
@@ -195,46 +201,7 @@ function LivingCharacter({ pointer }: CharacterProps) {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.5 * delta);
     }
 
-    // 3. Dynamic Eye Movement (Natural micro-saccades & gaze parallax)
-    // Head rotation IK already rotates the entire face toward the user's cursor.
-    // Iris translation is kept to a delicate sub-millimeter amplitude to stay perfectly seated in the sockets without clipping or strabismus.
-    const saccade = saccadeState.current;
-    if (time > saccade.nextTime) {
-      saccade.x = (Math.random() - 0.5) * 0.0003;
-      saccade.y = (Math.random() - 0.5) * 0.0002;
-      saccade.nextTime = time + 1.2 + Math.random() * 2.0;
-    }
-
-    const microGazeX = -mouseX * 0.0003 + saccade.x;
-    const microGazeY = mouseY * 0.0002 + saccade.y;
-
-    if (meshBindings.current.eyeIris) {
-      meshBindings.current.eyeIris.position.x = THREE.MathUtils.lerp(
-        meshBindings.current.eyeIris.position.x,
-        microGazeX,
-        6.0 * delta
-      );
-      meshBindings.current.eyeIris.position.y = THREE.MathUtils.lerp(
-        meshBindings.current.eyeIris.position.y,
-        microGazeY,
-        6.0 * delta
-      );
-    }
-
-    if (meshBindings.current.eyeHighlight) {
-      meshBindings.current.eyeHighlight.position.x = THREE.MathUtils.lerp(
-        meshBindings.current.eyeHighlight.position.x,
-        microGazeX * 0.5,
-        6.0 * delta
-      );
-      meshBindings.current.eyeHighlight.position.y = THREE.MathUtils.lerp(
-        meshBindings.current.eyeHighlight.position.y,
-        microGazeY * 0.5,
-        6.0 * delta
-      );
-    }
-
-    // 4. Physiological Curvilinear Eyelid Blinking
+    // 3. Physiological Curvilinear Eyelid Blinking
     const blink = blinkState.current;
     if (time > blink.nextBlinkTime && blink.progress < 0) {
       blink.progress = 0;
@@ -272,7 +239,7 @@ function LivingCharacter({ pointer }: CharacterProps) {
       meshBindings.current.eyeline.scale.y = blinkScaleY;
     }
 
-    // 5. Eyebrow Expressive Elevation
+    // 4. Eyebrow Expressive Elevation
     const targetBrowY = Math.max(0, mouseY) * 0.0015;
     if (meshBindings.current.brows) {
       meshBindings.current.brows.position.y = THREE.MathUtils.lerp(
@@ -282,7 +249,7 @@ function LivingCharacter({ pointer }: CharacterProps) {
       );
     }
 
-    // 6. Secondary Mass-Spring Physics on Hair Strands
+    // 5. Secondary Mass-Spring Physics on Hair Strands
     hairLag.current = THREE.MathUtils.lerp(
       hairLag.current,
       -mouseVx * 0.14 + Math.sin(time * 2.4) * 0.016,
@@ -301,6 +268,44 @@ function LivingCharacter({ pointer }: CharacterProps) {
   );
 }
 
+// ═════════════════════════════════════════════════════════════════
+// 3D CAMERA CONTROLLER: ANIMATED SCROLL & CHAPTER SPATIAL GLIDE
+// ═════════════════════════════════════════════════════════════════
+function CameraController({ activeChapter = 0 }: { activeChapter?: number }) {
+  useFrame((state, delta) => {
+    // 3D camera spatial coordinates tailored to each chapter
+    // Chapter 0 (Overview): Center portrait framing
+    // Chapter 1 (Vault): Glides slightly to the left, framing character on left while project vault opens on right
+    // Chapter 2 (Uplink): Glides slightly right, framing character intimately next to the uplink terminal
+    let targetX = 0.0;
+    let targetY = 0.12;
+    let targetZ = 0.52;
+    let lookAtX = 0.0;
+    let lookAtY = 0.10;
+
+    if (activeChapter === 1) {
+      targetX = -0.07;
+      targetY = 0.11;
+      targetZ = 0.50;
+      lookAtX = 0.02;
+      lookAtY = 0.10;
+    } else if (activeChapter === 2) {
+      targetX = 0.06;
+      targetY = 0.12;
+      targetZ = 0.49;
+      lookAtX = -0.02;
+      lookAtY = 0.10;
+    }
+
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX, 3.5 * delta);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY, 3.5 * delta);
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 3.5 * delta);
+    state.camera.lookAt(lookAtX, lookAtY, 0);
+  });
+
+  return null;
+}
+
 function Loader() {
   return (
     <Html center>
@@ -312,7 +317,11 @@ function Loader() {
   );
 }
 
-export function HeroCanvas() {
+interface HeroCanvasProps {
+  activeChapter?: number;
+}
+
+export function HeroCanvas({ activeChapter = 0 }: HeroCanvasProps) {
   const pointer = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
   const lastMouse = useRef({ x: 0, y: 0 });
 
@@ -350,6 +359,8 @@ export function HeroCanvas() {
           toneMappingExposure: 0.98,
         }}
       >
+        <CameraController activeChapter={activeChapter} />
+
         {/* Ambient Studio Radiance */}
         <ambientLight intensity={0.45} color="#282c38" />
         
@@ -393,12 +404,12 @@ export function HeroCanvas() {
         />
 
         <Suspense fallback={<Loader />}>
-          <LivingCharacter pointer={pointer} />
+          <LivingCharacter pointer={pointer} activeChapter={activeChapter} />
         </Suspense>
       </Canvas>
 
       {/* Gentle bottom fade into void to strictly prevent any lower chest exposure */}
-      <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-48 md:h-60 bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
