@@ -21,7 +21,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
   const { scene } = useGLTF('/models/anime_character.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const groupRef = useRef<THREE.Group>(null);
 
-  // Mesh bindings for facial feature animation and secondary hair physics
+  // Mesh bindings for facial features and secondary hair physics
   const meshBindings = useRef<{
     eyelashes?: THREE.Object3D;
     eyeline?: THREE.Object3D;
@@ -32,7 +32,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
     hairStrands: THREE.Object3D[];
   }>({ hairStrands: [] });
 
-  // Autonomous physiological blink state (proper non-linear anatomical closure)
+  // Autonomous physiological blink engine
   const blinkState = useRef({
     progress: -1,
     nextBlinkTime: 2.2,
@@ -49,24 +49,13 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
     emoteStartTime: 0,
     emoteDuration: 0,
     nextEmoteTime: 4.5,
-    // Active interpolated biases
+    // Smoothly interpolated head posture biases
     yawBias: 0,
     pitchBias: 0,
     rollBias: 0,
-    browElev: 0,
-    smileAmount: 0,
-    mouthOpen: 0,
-    talkAmount: 0,
-    mouthPosZ: 0,
-    // Target biases set by state
     targetYawBias: 0,
     targetPitchBias: 0,
     targetRollBias: 0,
-    targetBrowElev: 0,
-    targetSmileAmount: 0,
-    targetMouthOpen: 0,
-    targetTalkAmount: 0,
-    targetMouthPosZ: 0,
   });
 
   // Calibrate native materials to match Img 3 studio render
@@ -155,10 +144,10 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
             mat.color.setRGB(1.0, 0.95, 0.95);
             mat.metalness = 0.0;
           } 
-          // 9. Soft Delicate Lip Tone (Img 3 Match)
+          // 9. Soft Interior Mouth Shading (Locked firmly inside the oral cavity)
           else if (name.includes('facemouth')) {
-            mat.roughness = 0.45;
-            mat.color.setRGB(0.86, 0.48, 0.52);
+            mat.roughness = 0.65;
+            mat.color.setRGB(0.50, 0.20, 0.22);
             mat.metalness = 0.0;
           }
           // 10. Rich Leather Collar
@@ -179,31 +168,39 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
           }
         });
 
-        // Cache mesh references for animation & establish proper rendering order
+        // Cache mesh references and lock anatomical transforms safely
         const objName = child.name;
         if (objName.includes('FaceEyelash')) {
           meshBindings.current.eyelashes = child;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('FaceEyeline')) {
           meshBindings.current.eyeline = child;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeIris')) {
           meshBindings.current.eyeIris = child;
           child.renderOrder = 5;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeHighlight')) {
           meshBindings.current.eyeHighlight = child;
           child.renderOrder = 10;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeWhite')) {
           child.renderOrder = 1;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('FaceBrow')) {
           meshBindings.current.brows = child;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('FaceMouth')) {
+          // Strictly locked at origin inside the lips: never translated or scaled to prevent forehead glitch!
           meshBindings.current.mouth = child;
           child.position.set(0, 0, 0);
+          child.scale.set(1, 1, 1);
         } else if (objName.includes('Nurbs') || objName.includes('Cylinder.011')) {
           meshBindings.current.hairStrands.push(child);
         }
@@ -212,7 +209,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
   }, [scene]);
 
   // ═════════════════════════════════════════════════════════════════
-  // LIVING BIOMECHANICAL ANIMATION LOOP: EYES, LIPS, BREATH & EMOTES
+  // LIVING BIOMECHANICAL ANIMATION LOOP: HEAD IK, BREATH & NPC EMOTES
   // ═════════════════════════════════════════════════════════════════
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
@@ -223,7 +220,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
     const npc = npcEngine.current;
 
     // ─────────────────────────────────────────────────────────────
-    // 1. AUTONOMOUS NPC EMOTE STATE MACHINE
+    // 1. AUTONOMOUS NPC EMOTE STATE MACHINE (HEAD GESTURES & ATTENTION)
     // ─────────────────────────────────────────────────────────────
     const setEmoteTargets = (emote: NPCEmote) => {
       npc.currentEmote = emote;
@@ -233,27 +230,17 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
       switch (emote) {
         case 'CURIOUS':
           npc.emoteDuration = 3.6;
-          npc.targetRollBias = 0.05; // Inquisitive head tilt
-          npc.targetPitchBias = 0.02;
+          npc.targetRollBias = 0.065; // Cute curious head tilt
+          npc.targetPitchBias = 0.025; // Cocks forward toward cursor
           npc.targetYawBias = 0.0;
-          npc.targetBrowElev = 0.0028; // Raised eyebrows
-          npc.targetMouthOpen = 0.14; // Inquisitive parted lips
-          npc.targetSmileAmount = 0.06;
-          npc.targetTalkAmount = 0.06;
-          npc.targetMouthPosZ = 0.0005;
           break;
 
         case 'SMUG_SMILE':
           npc.emoteDuration = 4.0;
-          npc.targetRollBias = -0.04;
-          npc.targetPitchBias = -0.015;
+          npc.targetRollBias = -0.045; // Confident slight tilt
+          npc.targetPitchBias = -0.02;
           npc.targetYawBias = 0.0;
-          npc.targetBrowElev = 0.001;
-          npc.targetSmileAmount = 0.22; // Clear warm smile
-          npc.targetMouthOpen = -0.03; // Curved smiling mouth
-          npc.targetTalkAmount = 0.0;
-          npc.targetMouthPosZ = 0.0008;
-          // Trigger confident flutter double-blink
+          // Trigger flutter double-blink
           blinkState.current.progress = 0;
           blinkState.current.isDoubleBlink = true;
           break;
@@ -261,25 +248,15 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
         case 'PENSIVE':
           npc.emoteDuration = 4.2;
           npc.targetRollBias = 0.02;
-          npc.targetPitchBias = 0.07; // Looks up pensively
-          npc.targetYawBias = -0.16; // Looks slightly away from pointer
-          npc.targetBrowElev = -0.0012; // Slight concentrated brow
-          npc.targetSmileAmount = -0.06;
-          npc.targetMouthOpen = 0.05;
-          npc.targetTalkAmount = 0.12; // Whispering code thoughts
-          npc.targetMouthPosZ = -0.0003;
+          npc.targetPitchBias = 0.09; // Looks up into distance pensively
+          npc.targetYawBias = -0.18; // Glances away from cursor
           break;
 
         case 'SURPRISED':
           npc.emoteDuration = 2.4;
           npc.targetRollBias = 0.0;
-          npc.targetPitchBias = -0.04; // Head pulls back in awe
+          npc.targetPitchBias = -0.045; // Recoils back in wonder
           npc.targetYawBias = 0.0;
-          npc.targetBrowElev = 0.0045; // High arched brows
-          npc.targetMouthOpen = 0.26; // Open soft "o" gasp
-          npc.targetSmileAmount = -0.04;
-          npc.targetTalkAmount = 0.0;
-          npc.targetMouthPosZ = -0.0005;
           break;
 
         case 'AGREE_NOD':
@@ -287,11 +264,6 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
           npc.targetRollBias = 0.0;
           npc.targetPitchBias = 0.0;
           npc.targetYawBias = 0.0;
-          npc.targetBrowElev = 0.002;
-          npc.targetSmileAmount = 0.15; // Pleasant agreeing smile
-          npc.targetMouthOpen = 0.04;
-          npc.targetTalkAmount = 0.04;
-          npc.targetMouthPosZ = 0.0;
           break;
 
         case 'IDLE':
@@ -300,61 +272,51 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
           npc.targetRollBias = 0;
           npc.targetPitchBias = 0;
           npc.targetYawBias = 0;
-          npc.targetBrowElev = 0;
-          npc.targetSmileAmount = 0;
-          npc.targetMouthOpen = 0;
-          npc.targetTalkAmount = 0;
-          npc.targetMouthPosZ = 0;
           break;
       }
     };
 
-    // Check manual override from UI
+    // Manual override from UI
     if (manualEmote && manualEmote !== npc.lastEmote) {
       npc.lastEmote = manualEmote;
       setEmoteTargets(manualEmote);
     } 
-    // Otherwise cycle autonomously like an in-game NPC
+    // Otherwise autonomously cycle like an in-game NPC
     else if (!manualEmote && time > npc.nextEmoteTime && npc.currentEmote === 'IDLE') {
-      const npcEmotePool: NPCEmote[] = ['CURIOUS', 'SMUG_SMILE', 'PENSIVE', 'SURPRISED', 'AGREE_NOD'];
-      const nextChoice = npcEmotePool[Math.floor(Math.random() * npcEmotePool.length)];
+      const npcPool: NPCEmote[] = ['CURIOUS', 'SMUG_SMILE', 'PENSIVE', 'SURPRISED', 'AGREE_NOD'];
+      const nextChoice = npcPool[Math.floor(Math.random() * npcPool.length)];
       setEmoteTargets(nextChoice);
     }
 
-    // Auto return to IDLE after active emote finishes
+    // Auto return to IDLE after active emote duration finishes
     if (npc.currentEmote !== 'IDLE' && !manualEmote && time > npc.emoteStartTime + npc.emoteDuration) {
       npc.currentEmote = 'IDLE';
       npc.nextEmoteTime = time + 4.0 + Math.random() * 4.5;
       setEmoteTargets('IDLE');
     }
 
-    // Smoothly interpolate emote modifiers
-    npc.yawBias = THREE.MathUtils.lerp(npc.yawBias, npc.targetYawBias, 4.0 * delta);
-    npc.pitchBias = THREE.MathUtils.lerp(npc.pitchBias, npc.targetPitchBias, 4.0 * delta);
-    npc.rollBias = THREE.MathUtils.lerp(npc.rollBias, npc.targetRollBias, 4.0 * delta);
-    npc.browElev = THREE.MathUtils.lerp(npc.browElev, npc.targetBrowElev, 5.0 * delta);
-    npc.smileAmount = THREE.MathUtils.lerp(npc.smileAmount, npc.targetSmileAmount, 5.0 * delta);
-    npc.mouthOpen = THREE.MathUtils.lerp(npc.mouthOpen, npc.targetMouthOpen, 5.0 * delta);
-    npc.talkAmount = THREE.MathUtils.lerp(npc.talkAmount, npc.targetTalkAmount, 5.0 * delta);
-    npc.mouthPosZ = THREE.MathUtils.lerp(npc.mouthPosZ, npc.targetMouthPosZ, 5.0 * delta);
+    // Interpolate emote biases smoothly
+    npc.yawBias = THREE.MathUtils.lerp(npc.yawBias, npc.currentEmote === 'IDLE' ? 0 : npc.targetYawBias, 4.0 * delta);
+    npc.pitchBias = THREE.MathUtils.lerp(npc.pitchBias, npc.currentEmote === 'IDLE' ? 0 : npc.targetPitchBias, 4.0 * delta);
+    npc.rollBias = THREE.MathUtils.lerp(npc.rollBias, npc.currentEmote === 'IDLE' ? 0 : npc.targetRollBias, 4.0 * delta);
 
-    // Nod wave for AGREE_NOD
+    // Nodding wave for AGREE_NOD
     let nodOffset = 0;
     if (npc.currentEmote === 'AGREE_NOD') {
       const nodTime = time - npc.emoteStartTime;
       if (nodTime < 2.2) {
-        nodOffset = Math.sin(nodTime * 6.5) * 0.038;
+        nodOffset = Math.sin(nodTime * 6.5) * 0.042;
       }
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 2. ORGANIC BREATHING & HEAD KINEMATICS
+    // 2. WHOLE-BODY DIAPHRAGM BREATHING & HEAD ORIENTATION IK
     // ─────────────────────────────────────────────────────────────
     const breathCycle = time * 1.9;
     const breathOffset = (Math.sin(breathCycle) + 0.3 * Math.sin(breathCycle * 2)) * 0.005;
     const breathNod = Math.sin(breathCycle) * 0.012;
 
-    // Natural head orientation combines active deck bias, cursor IK, and NPC emote posture
+    // Head orientation combines cursor tracking, active deck parallax, and NPC emote posture
     const chapterYawBias = activeChapter === 1 ? 0.08 : activeChapter === 2 ? -0.08 : 0.0;
     const targetYaw = Math.PI - mouseX * 0.22 + chapterYawBias + npc.yawBias;
     const targetPitch = mouseY * 0.14 + breathNod + npc.pitchBias + nodOffset;
@@ -368,7 +330,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 3. PROPER NON-LINEAR EYELID BLINK ENGINE (VERTICAL Z SWEEP)
+    // 3. CLEAN ANATOMICAL EYELID BLINKING
     // ─────────────────────────────────────────────────────────────
     const blink = blinkState.current;
     if (time > blink.nextBlinkTime && blink.progress < 0) {
@@ -376,20 +338,19 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
       blink.isDoubleBlink = Math.random() < 0.28;
     }
 
-    let blinkAmount = 0.0; // 0.0 = fully open, 1.0 = fully closed
+    let blinkScaleY = 1.0;
+    let isFullyClosed = false;
     if (blink.progress >= 0) {
-      blink.progress += 14.0 * delta;
-      if (blink.progress <= 0.38) {
-        // Fast dynamic closing
-        const t = blink.progress / 0.38;
-        blinkAmount = t * t;
-      } else if (blink.progress <= 0.50) {
-        // Full anatomical lid closure pause
-        blinkAmount = 1.0;
+      blink.progress += 13.0 * delta;
+      if (blink.progress <= 0.42) {
+        const t = blink.progress / 0.42;
+        blinkScaleY = 1.0 - t * t * 0.92;
+      } else if (blink.progress <= 0.52) {
+        blinkScaleY = 0.08;
+        isFullyClosed = true;
       } else if (blink.progress <= 1.0) {
-        // Smooth opening with gentle elastic deceleration
-        const t = (blink.progress - 0.50) / 0.50;
-        blinkAmount = 1.0 - Math.pow(t, 2);
+        const t = (blink.progress - 0.52) / 0.48;
+        blinkScaleY = 0.08 + (1.0 - Math.pow(1.0 - t, 2)) * 0.92;
       } else {
         if (blink.isDoubleBlink) {
           blink.progress = 0;
@@ -397,70 +358,25 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
         } else {
           blink.progress = -1;
           blink.nextBlinkTime = time + 2.5 + Math.random() * 3.5;
-          blinkAmount = 0.0;
+          blinkScaleY = 1.0;
         }
       }
     }
 
-    // In Face coordinate system: Local Z is the vertical height axis!
-    // The eyelid closes by sweeping down in local Z and flattening into a soft lid curve:
+    // Modulate eyelashes safely without displacing off the skull
     if (meshBindings.current.eyelashes) {
-      meshBindings.current.eyelashes.position.z = -blinkAmount * 0.012;
-      meshBindings.current.eyelashes.scale.z = 1.0 - blinkAmount * 0.85;
+      meshBindings.current.eyelashes.scale.y = blinkScaleY;
     }
     if (meshBindings.current.eyeline) {
-      meshBindings.current.eyeline.position.z = -blinkAmount * 0.010;
-      meshBindings.current.eyeline.scale.z = 1.0 - blinkAmount * 0.80;
+      meshBindings.current.eyeline.scale.y = blinkScaleY;
     }
-    // Conceal corneal highlight when eyelid is shut so it doesn't poke through closed lids
+    // Conceal corneal highlight when eyelids shut so it doesn't poke through closed lids
     if (meshBindings.current.eyeHighlight) {
-      const hlScale = Math.max(0.0, 1.0 - blinkAmount * 1.35);
-      meshBindings.current.eyeHighlight.scale.set(hlScale, hlScale, hlScale);
+      meshBindings.current.eyeHighlight.visible = !isFullyClosed;
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 4. LIP & MOUTH MOVEMENT ENGINE (RESPIRATORY & PHONEME MURMUR)
-    // ─────────────────────────────────────────────────────────────
-    // Organic respiratory parting when breathing
-    const breathPart = Math.max(0, Math.sin(breathCycle)) * 0.07;
-    // Sub-vocal murmuring / speech phoneme oscillations
-    const murmurPart = (Math.sin(time * 3.4) * 0.5 + Math.sin(time * 5.2) * 0.3) * npc.talkAmount;
-
-    const targetMouthScaleZ = 1.0 + breathPart + murmurPart + npc.mouthOpen;
-    const targetMouthScaleX = 1.0 + npc.smileAmount;
-
-    if (meshBindings.current.mouth) {
-      meshBindings.current.mouth.scale.z = THREE.MathUtils.lerp(
-        meshBindings.current.mouth.scale.z,
-        Math.max(0.2, targetMouthScaleZ),
-        8.0 * delta
-      );
-      meshBindings.current.mouth.scale.x = THREE.MathUtils.lerp(
-        meshBindings.current.mouth.scale.x,
-        targetMouthScaleX,
-        8.0 * delta
-      );
-      meshBindings.current.mouth.position.z = THREE.MathUtils.lerp(
-        meshBindings.current.mouth.position.z,
-        npc.mouthPosZ,
-        8.0 * delta
-      );
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // 5. EYEBROW EXPRESSIVE ELEVATION & EMOTIVE ARCH
-    // ─────────────────────────────────────────────────────────────
-    const targetBrowZ = Math.max(0, mouseY) * 0.0015 + npc.browElev;
-    if (meshBindings.current.brows) {
-      meshBindings.current.brows.position.z = THREE.MathUtils.lerp(
-        meshBindings.current.brows.position.z,
-        targetBrowZ,
-        6.0 * delta
-      );
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // 6. SECONDARY INERTIAL HAIR STRAND SPRING PHYSICS
+    // 4. SECONDARY INERTIAL HAIR STRAND SPRING PHYSICS
     // ─────────────────────────────────────────────────────────────
     hairLag.current = THREE.MathUtils.lerp(
       hairLag.current,
