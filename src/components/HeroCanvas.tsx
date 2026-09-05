@@ -81,8 +81,20 @@ function LivingCharacter({ pointer }: CharacterProps) {
           else if (name.includes('eyeiris')) {
             mat.roughness = 0.06;
             mat.metalness = 0.0;
-            mat.emissive = new THREE.Color(0x00f0ff);
-            mat.emissiveIntensity = 0.70;
+            mat.emissive = new THREE.Color(0x00e5ff);
+            mat.emissiveIntensity = 0.65;
+            if (mat.map) {
+              mat.map.generateMipmaps = true;
+              mat.map.minFilter = THREE.LinearMipmapLinearFilter;
+              mat.map.anisotropy = 16;
+              mat.map.needsUpdate = true;
+            }
+            if (mat.emissiveMap) {
+              mat.emissiveMap.generateMipmaps = true;
+              mat.emissiveMap.minFilter = THREE.LinearMipmapLinearFilter;
+              mat.emissiveMap.anisotropy = 16;
+              mat.emissiveMap.needsUpdate = true;
+            }
           }
           // 4. Crisp White Eye Highlights (Sharp specular reflection like Img 3)
           else if (name.includes('eyehighlight')) {
@@ -92,6 +104,7 @@ function LivingCharacter({ pointer }: CharacterProps) {
             mat.emissive = new THREE.Color(0x000000);
             mat.emissiveIntensity = 0.0;
             mat.depthWrite = false;
+            mat.transparent = true;
           }
           // 5. Clean Sclera Eye White
           else if (name.includes('eyewhite')) {
@@ -182,43 +195,42 @@ function LivingCharacter({ pointer }: CharacterProps) {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRoll, 3.5 * delta);
     }
 
-    // 3. Dynamic Eye Movement (Pupils visibly track cursor + involuntary micro-saccades)
+    // 3. Dynamic Eye Movement (Natural micro-saccades & gaze parallax)
+    // Head rotation IK already rotates the entire face toward the user's cursor.
+    // Iris translation is kept to a delicate sub-millimeter amplitude to stay perfectly seated in the sockets without clipping or strabismus.
     const saccade = saccadeState.current;
     if (time > saccade.nextTime) {
-      // Living eye micro-drift
-      saccade.x = (Math.random() - 0.5) * 0.0022;
-      saccade.y = (Math.random() - 0.5) * 0.0016;
-      saccade.nextTime = time + 0.8 + Math.random() * 1.8;
+      saccade.x = (Math.random() - 0.5) * 0.0003;
+      saccade.y = (Math.random() - 0.5) * 0.0002;
+      saccade.nextTime = time + 1.2 + Math.random() * 2.0;
     }
 
-    // Generous, clearly visible gaze amplitude
-    const targetGazeX = -mouseX * 0.0055 + saccade.x;
-    const targetGazeY = mouseY * 0.0040 + saccade.y;
+    const microGazeX = -mouseX * 0.0003 + saccade.x;
+    const microGazeY = mouseY * 0.0002 + saccade.y;
 
-    // Move both Iris and Specular Highlights together as a unified eye cluster
     if (meshBindings.current.eyeIris) {
       meshBindings.current.eyeIris.position.x = THREE.MathUtils.lerp(
         meshBindings.current.eyeIris.position.x,
-        targetGazeX,
-        10.0 * delta
+        microGazeX,
+        6.0 * delta
       );
       meshBindings.current.eyeIris.position.y = THREE.MathUtils.lerp(
         meshBindings.current.eyeIris.position.y,
-        targetGazeY,
-        10.0 * delta
+        microGazeY,
+        6.0 * delta
       );
     }
 
     if (meshBindings.current.eyeHighlight) {
       meshBindings.current.eyeHighlight.position.x = THREE.MathUtils.lerp(
         meshBindings.current.eyeHighlight.position.x,
-        targetGazeX,
-        10.0 * delta
+        microGazeX * 0.5,
+        6.0 * delta
       );
       meshBindings.current.eyeHighlight.position.y = THREE.MathUtils.lerp(
         meshBindings.current.eyeHighlight.position.y,
-        targetGazeY,
-        10.0 * delta
+        microGazeY * 0.5,
+        6.0 * delta
       );
     }
 
@@ -231,18 +243,15 @@ function LivingCharacter({ pointer }: CharacterProps) {
 
     let blinkScaleY = 1.0;
     if (blink.progress >= 0) {
-      blink.progress += 14.0 * delta;
-      if (blink.progress <= 0.40) {
-        // Fast snap close (60ms)
-        const t = blink.progress / 0.40;
-        blinkScaleY = 1.0 - t * t * 0.98;
-      } else if (blink.progress <= 0.52) {
-        // Closed hold
-        blinkScaleY = 0.02;
+      blink.progress += 12.0 * delta;
+      if (blink.progress <= 0.45) {
+        const t = blink.progress / 0.45;
+        blinkScaleY = 1.0 - t * t * 0.95;
+      } else if (blink.progress <= 0.55) {
+        blinkScaleY = 0.05;
       } else if (blink.progress <= 1.0) {
-        // Cubic ease-out open (110ms)
-        const t = (blink.progress - 0.52) / 0.48;
-        blinkScaleY = 0.02 + (1.0 - Math.pow(1.0 - t, 3)) * 0.98;
+        const t = (blink.progress - 0.55) / 0.45;
+        blinkScaleY = 0.05 + (1.0 - Math.pow(1.0 - t, 3)) * 0.95;
       } else {
         if (blink.isDoubleBlink) {
           blink.progress = 0;
@@ -250,23 +259,21 @@ function LivingCharacter({ pointer }: CharacterProps) {
         } else {
           blink.progress = -1;
           blink.nextBlinkTime = time + 2.5 + Math.random() * 3.5;
+          blinkScaleY = 1.0;
         }
       }
     }
 
-    // Apply lid closure + vertical drop to seal the eye
-    const closeAmount = 1.0 - blinkScaleY;
-    if (meshBindings.current.eyelashes && eyelashBaseY.current !== null) {
+    // Apply lid closure cleanly via scale.y (preserves native anatomical alignment without downward displacement)
+    if (meshBindings.current.eyelashes) {
       meshBindings.current.eyelashes.scale.y = blinkScaleY;
-      meshBindings.current.eyelashes.position.y = eyelashBaseY.current - closeAmount * 0.004;
     }
-    if (meshBindings.current.eyeline && eyelineBaseY.current !== null) {
+    if (meshBindings.current.eyeline) {
       meshBindings.current.eyeline.scale.y = blinkScaleY;
-      meshBindings.current.eyeline.position.y = eyelineBaseY.current - closeAmount * 0.004;
     }
 
     // 5. Eyebrow Expressive Elevation
-    const targetBrowY = Math.max(0, mouseY) * 0.0020 - closeAmount * 0.0010;
+    const targetBrowY = Math.max(0, mouseY) * 0.0015;
     if (meshBindings.current.brows) {
       meshBindings.current.brows.position.y = THREE.MathUtils.lerp(
         meshBindings.current.brows.position.y,
@@ -333,7 +340,7 @@ export function HeroCanvas() {
     >
       <Canvas
         // Exact portrait bust framing matching Img 3
-        camera={{ position: [0, 0.11, 0.60], fov: 35 }}
+        camera={{ position: [0, 0.12, 0.52], fov: 32 }}
         shadows
         gl={{
           powerPreference: 'high-performance',
@@ -391,7 +398,7 @@ export function HeroCanvas() {
       </Canvas>
 
       {/* Gentle bottom fade into void to strictly prevent any lower chest exposure */}
-      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-void via-void/80 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
