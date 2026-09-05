@@ -164,115 +164,16 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
     targetRollBias: 0,
   });
 
-  // Calibrate native materials to match Img 3 studio render
+  // Setup scene and cache mesh bindings without altering original 3D model textures
   useEffect(() => {
     meshBindings.current.hairStrands = [];
 
     scene.traverse((child: any) => {
       if (child.isMesh) {
-        const isEye = child.name.toLowerCase().includes('eye');
-        child.castShadow = !isEye;
-        child.receiveShadow = !isEye;
+        child.castShadow = true;
+        child.receiveShadow = true;
 
-        const mats = Array.isArray(child.material) ? child.material : [child.material];
-        mats.forEach((mat: THREE.MeshStandardMaterial) => {
-          if (!mat.name) return;
-          const name = mat.name.toLowerCase();
-
-          // 1. Soft Satin White Hair
-          if (name.includes('material.006') || name.includes('material.002') || name.includes('material.001')) {
-            mat.transparent = false;
-            mat.depthWrite = true;
-            mat.color.setRGB(0.88, 0.89, 0.92);
-            mat.roughness = 0.48;
-            mat.metalness = 0.02;
-          } 
-          // 2. Signature Teal Bang Streak
-          else if (name.includes('material.007')) {
-            mat.transparent = false;
-            mat.depthWrite = true;
-            mat.color.setRGB(0.18, 0.88, 0.80);
-            mat.roughness = 0.40;
-          } 
-          // 3. Electric Cyan Eyes with Dark Pupil
-          else if (name.includes('eyeiris')) {
-            mat.roughness = 0.06;
-            mat.metalness = 0.0;
-            mat.emissive = new THREE.Color(0x00e5ff);
-            mat.emissiveIntensity = 0.60;
-            mat.alphaTest = 0.155;
-            mat.transparent = true;
-            if (mat.map) {
-              mat.map.generateMipmaps = true;
-              mat.map.minFilter = THREE.LinearMipmapLinearFilter;
-              mat.map.anisotropy = 16;
-              mat.map.needsUpdate = true;
-            }
-            if (mat.emissiveMap) {
-              mat.emissiveMap.generateMipmaps = true;
-              mat.emissiveMap.minFilter = THREE.LinearMipmapLinearFilter;
-              mat.emissiveMap.anisotropy = 16;
-              mat.emissiveMap.needsUpdate = true;
-            }
-          }
-          // 4. Crisp White Eye Highlights
-          else if (name.includes('eyehighlight')) {
-            mat.color.setRGB(1.0, 1.0, 1.0);
-            mat.emissive = new THREE.Color('#ffffff');
-            mat.emissiveIntensity = 1.0;
-            mat.roughness = 0.0;
-            mat.metalness = 0.0;
-            mat.depthWrite = false;
-            mat.transparent = true;
-          }
-          // 5. Clean Sclera Eye White
-          else if (name.includes('eyewhite')) {
-            mat.roughness = 0.30;
-            mat.color.setRGB(0.96, 0.96, 0.98);
-          }
-          // 6. 2D Facial Contours
-          else if (name.includes('faceeyelash') || name.includes('faceeyeline') || name.includes('facebrow')) {
-            mat.transparent = true;
-            mat.depthWrite = false;
-            mat.alphaTest = 0.02;
-          } 
-          // 7. Modesty Undershirt (Zero chest visibility)
-          else if (name.includes('body_00_skin')) {
-            mat.color.setRGB(0.06, 0.06, 0.08);
-            mat.roughness = 0.85;
-            mat.metalness = 0.0;
-          }
-          // 8. Soft Natural Anime Face Skin & Cheek Blush
-          else if (name.includes('face_00_skin')) {
-            mat.roughness = 0.58;
-            mat.color.setRGB(1.0, 0.95, 0.95);
-            mat.metalness = 0.0;
-          } 
-          // 9. Soft Interior Mouth Shading (Firmly anchored in cavity)
-          else if (name.includes('facemouth')) {
-            mat.roughness = 0.65;
-            mat.color.setRGB(0.50, 0.20, 0.22);
-            mat.metalness = 0.0;
-          }
-          // 10. Rich Leather Collar
-          else if (name.includes('leather')) {
-            mat.color.setRGB(0.38, 0.16, 0.12);
-            mat.roughness = 0.40;
-          } 
-          // 11. Polished Gold Buckle
-          else if (name.includes('metal') || name.includes('material.008')) {
-            mat.color.setRGB(0.95, 0.82, 0.45);
-            mat.metalness = 0.85;
-            mat.roughness = 0.25;
-          } 
-          // 12. White Silk Shirt & Bandages
-          else if (name.includes('silk') || name.includes('ducktape') || name.includes('material')) {
-            mat.color.setRGB(0.90, 0.92, 0.94);
-            mat.roughness = 0.48;
-          }
-        });
-
-        // Cache mesh bindings
+        // Cache mesh bindings for blinks and secondary hair physics
         const objName = child.name;
         if (objName.includes('FaceEyelash')) {
           meshBindings.current.eyelashes = child;
@@ -284,16 +185,13 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
           child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeIris')) {
           meshBindings.current.eyeIris = child;
-          child.renderOrder = 5;
           child.position.set(0, 0, 0);
           child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeHighlight')) {
           meshBindings.current.eyeHighlight = child;
-          child.renderOrder = 10;
           child.position.set(0, 0, 0);
           child.scale.set(1, 1, 1);
         } else if (objName.includes('EyeWhite')) {
-          child.renderOrder = 1;
           child.position.set(0, 0, 0);
           child.scale.set(1, 1, 1);
         } else if (objName.includes('FaceBrow')) {
@@ -310,6 +208,7 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
       }
     });
   }, [scene]);
+
 
   // ═════════════════════════════════════════════════════════════════
   // ANIMATION LOOP: HEAD IK, BREATH & EMOTE KINEMATICS
