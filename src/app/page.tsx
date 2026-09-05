@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { HeroCanvas } from '@/components/HeroCanvas';
+import { HeroCanvas, NPCEmote } from '@/components/HeroCanvas';
 import { 
   Sparkles, 
   Github, 
@@ -17,7 +17,9 @@ import {
   Loader2,
   Box,
   Compass,
-  Radio
+  Radio,
+  Smile,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -94,6 +96,9 @@ const VAULT_PROJECTS: Project[] = [
 export default function Home() {
   const [activeChapter, setActiveChapter] = useState<number>(0);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
+  const [activeEmote, setActiveEmote] = useState<NPCEmote>('IDLE');
+  const [manualEmote, setManualEmote] = useState<NPCEmote | null>(null);
+
   const [terminalEmail, setTerminalEmail] = useState('');
   const [terminalStatus, setTerminalStatus] = useState<'idle' | 'transmitting' | 'connected' | 'error'>('idle');
   const [terminalLog, setTerminalLog] = useState<string | null>(null);
@@ -167,12 +172,21 @@ export default function Home() {
     }, 1200);
   };
 
+  const triggerManualEmote = (emote: NPCEmote) => {
+    setManualEmote(emote);
+    setTimeout(() => setManualEmote(null), 400);
+  };
+
   const activeProject = VAULT_PROJECTS[selectedProjectIndex];
 
   return (
     <main className="relative min-h-screen md:h-screen w-full bg-void text-slate-100 overflow-x-hidden md:overflow-hidden selection:bg-neon-crimson selection:text-white flex flex-col justify-between">
-      {/* 3D WebGL Canvas Layer with Spatial Camera Controller */}
-      <HeroCanvas activeChapter={activeChapter} />
+      {/* 3D WebGL Canvas Layer with Spatial Camera Controller & Living NPC Rig */}
+      <HeroCanvas 
+        activeChapter={activeChapter} 
+        manualEmote={manualEmote}
+        onEmoteChange={setActiveEmote}
+      />
 
       {/* ═══════════════════════════════════════════════════════════════
           TOP HUD NAVIGATION BAR
@@ -242,10 +256,10 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           DESKTOP SIDE DECKS WORKSPACE (UNCLUTTERED 3D SPATIAL UI)
           ═══════════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 py-4 flex-1 flex flex-col md:flex-row items-center md:items-center justify-between gap-6 pointer-events-none">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 py-3 flex-1 flex flex-col md:flex-row items-center md:items-center justify-between gap-6 pointer-events-none">
         
         {/* ─────────────────────────────────────────────────────────────
-            LEFT GLASS DECK: ARCHITECT SPECS & CORE VALUE PROPOSITION
+            LEFT GLASS DECK: ARCHITECT SPECS, TELEMETRY & NPC EMOTE DECK
             ───────────────────────────────────────────────────────────── */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
@@ -253,7 +267,7 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="w-full md:w-[380px] lg:w-[420px] pointer-events-auto"
         >
-          <div className="glass-panel p-6 sm:p-7 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-6">
+          <div className="glass-panel p-6 sm:p-7 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-5">
             
             {/* Domain Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/25 text-xs font-mono tracking-wider text-neon-cyan w-fit">
@@ -269,7 +283,7 @@ export default function Home() {
                   GPU Pipelines
                 </span>
               </h1>
-              <p className="mt-2 text-xs font-mono text-slate-400">
+              <p className="mt-1.5 text-xs font-mono text-slate-400">
                 iKi // WebGL & WebGPU Systems Architect
               </p>
             </div>
@@ -280,7 +294,7 @@ export default function Home() {
             </p>
 
             {/* Locked Runtime Telemetry Metrics */}
-            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.08] font-mono text-center">
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.08] font-mono text-center">
               <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
                 <div className="text-neon-cyan font-bold text-sm">60 FPS</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">LOCKED</div>
@@ -295,8 +309,72 @@ export default function Home() {
               </div>
             </div>
 
+            {/* ── AUTONOMOUS NPC EMOTE CONTROLLER & STATE BADGE ── */}
+            <div className="pt-2 border-t border-white/[0.08] flex flex-col gap-2 font-mono">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-slate-400 flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-neon-cyan animate-pulse" />
+                  NPC KINEMATICS:
+                </span>
+                <span className="text-neon-cyan font-semibold tracking-wider">
+                  {activeEmote === 'IDLE' && 'IDLE // OBSERVING'}
+                  {activeEmote === 'CURIOUS' && 'CURIOUS_LOOK 💡'}
+                  {activeEmote === 'SMUG_SMILE' && 'WARM_SMILE 😊'}
+                  {activeEmote === 'PENSIVE' && 'PROFILING_SHADERS 🤔'}
+                  {activeEmote === 'SURPRISED' && 'SURPRISED_GASPO 😮'}
+                  {activeEmote === 'AGREE_NOD' && 'AFFIRMATIVE_NOD 🙌'}
+                </span>
+              </div>
+
+              {/* Interactive NPC Emote Triggers */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                <button
+                  onClick={() => triggerManualEmote('SMUG_SMILE')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  title="Trigger warm smile"
+                >
+                  😊 Smile
+                </button>
+                <button
+                  onClick={() => triggerManualEmote('CURIOUS')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  title="Trigger curious tilt"
+                >
+                  💡 Curious
+                </button>
+                <button
+                  onClick={() => triggerManualEmote('PENSIVE')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  title="Trigger thought"
+                >
+                  🤔 Ponder
+                </button>
+                <button
+                  onClick={() => triggerManualEmote('SURPRISED')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  title="Trigger gasp"
+                >
+                  😮 Gasp
+                </button>
+                <button
+                  onClick={() => triggerManualEmote('AGREE_NOD')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  title="Trigger nod"
+                >
+                  🙌 Nod
+                </button>
+                <button
+                  onClick={() => triggerManualEmote('IDLE')}
+                  className="px-2 py-0.5 rounded-lg bg-white/[0.02] text-slate-500 hover:text-white border border-white/[0.04] transition-colors"
+                  title="Reset to autonomous idle"
+                >
+                  ⚡ Auto
+                </button>
+              </div>
+            </div>
+
             {/* 3D Spatial Stepper Indicator */}
-            <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-400 pt-1">
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-neon-cyan" />
                 CHAPTER {activeChapter + 1} OF 3
@@ -601,7 +679,7 @@ export default function Home() {
       <footer className="relative z-20 w-full px-6 lg:px-12 pb-4 text-xs font-mono text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 pointer-events-auto">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-          <span>RUNTIME: OPTIMAL // ACES FILMIC // ZERO DOM WASTE</span>
+          <span>RUNTIME: OPTIMAL // ACES FILMIC // NPC KINEMATICS ACTIVE</span>
         </div>
         <div>
           <span>© 2026 iKi // WebGL Performance Architecture</span>
