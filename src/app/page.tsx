@@ -181,7 +181,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen md:h-screen w-full bg-void text-slate-100 overflow-x-hidden md:overflow-hidden selection:bg-neon-crimson selection:text-white flex flex-col justify-between">
-      {/* 3D WebGL Canvas Layer with Spatial Camera Controller & Living NPC Rig */}
+      {/* 3D WebGL Canvas Layer with Calibrated Portrait Bust Framing (Zero Character Obstruction) */}
       <HeroCanvas 
         activeChapter={activeChapter} 
         manualEmote={manualEmote}
@@ -191,8 +191,8 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           TOP HUD NAVIGATION BAR
           ═══════════════════════════════════════════════════════════════ */}
-      <header className="relative z-20 w-full px-6 lg:px-12 pt-5 pointer-events-auto">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="relative z-20 w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 pt-4 pointer-events-auto">
+        <div className="w-full flex items-center justify-between">
           {/* Identity & Status Beacon */}
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_#00e5ff]" />
@@ -254,9 +254,11 @@ export default function Home() {
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════
-          DESKTOP SIDE DECKS WORKSPACE (UNCLUTTERED 3D SPATIAL UI)
+          DESKTOP SIDE DECKS WORKSPACE
+          Anchored to the far flanks of the viewport to keep the 
+          central 3D character 100% UNCOVERED and prominently visible.
           ═══════════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 py-3 flex-1 flex flex-col md:flex-row items-center md:items-center justify-between gap-6 pointer-events-none">
+      <div className="relative z-10 w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-2 flex-1 flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-none">
         
         {/* ─────────────────────────────────────────────────────────────
             LEFT GLASS DECK: ARCHITECT SPECS, TELEMETRY & NPC EMOTE DECK
@@ -265,47 +267,47 @@ export default function Home() {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full md:w-[380px] lg:w-[420px] pointer-events-auto"
+          className="w-full md:w-[310px] lg:w-[345px] pointer-events-auto shrink-0"
         >
-          <div className="glass-panel p-6 sm:p-7 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-5">
+          <div className="glass-panel p-5 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-4">
             
             {/* Domain Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/25 text-xs font-mono tracking-wider text-neon-cyan w-fit">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-neon-cyan/10 border border-neon-cyan/25 text-[11px] font-mono tracking-wider text-neon-cyan w-fit">
+              <Sparkles className="w-3 h-3" />
               <span>GPU ARCHITECTURE // SPATIAL UI</span>
             </div>
 
             {/* Architect Identity */}
             <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
                 High-Yield <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-slate-100 to-slate-400">
                   GPU Pipelines
                 </span>
               </h1>
-              <p className="mt-1.5 text-xs font-mono text-slate-400">
-                iKi // WebGL & WebGPU Systems Architect
+              <p className="mt-1 text-xs font-mono text-slate-400">
+                iKi // WebGL & WebGPU Architect
               </p>
             </div>
 
             {/* Core Value Proposition */}
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-300 leading-relaxed font-sans">
               Bridging complex GPU architecture with high-converting web experiences. Specializing in WebGL rendering pipelines, browser-native AI memory management, and spatial UI.
             </p>
 
             {/* Locked Runtime Telemetry Metrics */}
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.08] font-mono text-center">
-              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                <div className="text-neon-cyan font-bold text-sm">60 FPS</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">LOCKED</div>
+            <div className="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-white/[0.08] font-mono text-center">
+              <div className="p-1.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="text-neon-cyan font-bold text-xs">60 FPS</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">LOCKED</div>
               </div>
-              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                <div className="text-neon-crimson font-bold text-sm">10M+</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">SPLAT BVH</div>
+              <div className="p-1.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="text-neon-crimson font-bold text-xs">10M+</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">SPLAT BVH</div>
               </div>
-              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                <div className="text-green-400 font-bold text-sm">8B+</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">VRAM PAGING</div>
+              <div className="p-1.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="text-green-400 font-bold text-xs">8B+</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">VRAM PAGING</div>
               </div>
             </div>
 
@@ -316,7 +318,7 @@ export default function Home() {
                   <Activity className="w-3.5 h-3.5 text-neon-cyan animate-pulse" />
                   NPC KINEMATICS:
                 </span>
-                <span className="text-neon-cyan font-semibold tracking-wider">
+                <span className="text-neon-cyan font-semibold tracking-wider text-[10px]">
                   {activeEmote === 'IDLE' && 'IDLE // OBSERVING'}
                   {activeEmote === 'CURIOUS' && 'CURIOUS_LOOK 💡'}
                   {activeEmote === 'SMUG_SMILE' && 'WARM_SMILE 😊'}
@@ -327,45 +329,45 @@ export default function Home() {
               </div>
 
               {/* Interactive NPC Emote Triggers */}
-              <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+              <div className="flex flex-wrap items-center gap-1 text-[10px]">
                 <button
                   onClick={() => triggerManualEmote('SMUG_SMILE')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
                   title="Trigger warm smile"
                 >
                   😊 Smile
                 </button>
                 <button
                   onClick={() => triggerManualEmote('CURIOUS')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
                   title="Trigger curious tilt"
                 >
                   💡 Curious
                 </button>
                 <button
                   onClick={() => triggerManualEmote('PENSIVE')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
                   title="Trigger thought"
                 >
                   🤔 Ponder
                 </button>
                 <button
                   onClick={() => triggerManualEmote('SURPRISED')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
                   title="Trigger gasp"
                 >
                   😮 Gasp
                 </button>
                 <button
                   onClick={() => triggerManualEmote('AGREE_NOD')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-neon-cyan/20 hover:text-neon-cyan border border-white/[0.06] transition-colors"
                   title="Trigger nod"
                 >
                   🙌 Nod
                 </button>
                 <button
                   onClick={() => triggerManualEmote('IDLE')}
-                  className="px-2 py-0.5 rounded-lg bg-white/[0.02] text-slate-500 hover:text-white border border-white/[0.04] transition-colors"
+                  className="px-1.5 py-0.5 rounded-md bg-white/[0.02] text-slate-500 hover:text-white border border-white/[0.04] transition-colors"
                   title="Reset to autonomous idle"
                 >
                   ⚡ Auto
@@ -379,23 +381,29 @@ export default function Home() {
                 <span className="w-2 h-2 rounded-full bg-neon-cyan" />
                 CHAPTER {activeChapter + 1} OF 3
               </span>
-              <span className="text-[11px] text-slate-500 hidden sm:inline">
-                SCROLL WHEEL TO GLIDE
+              <span className="text-[10px] text-slate-500 hidden sm:inline">
+                SCROLL TO GLIDE
               </span>
             </div>
           </div>
         </motion.div>
 
         {/* ─────────────────────────────────────────────────────────────
+            CENTER CLEAR CORRIDOR: UNOBSTRUCTED 3D CHARACTER STAGE
+            Ensures the character's face, neck, and hair are 100% visible
+            without any panel overlap.
+            ───────────────────────────────────────────────────────────── */}
+        <div className="hidden md:block flex-1 pointer-events-none min-w-[200px]" />
+
+        {/* ─────────────────────────────────────────────────────────────
             RIGHT GLASS DECK: DYNAMIC INTERACTIVE MODULE
-            Swaps smoothly between Chapter 0 (Overview), Chapter 1 (Vault),
-            and Chapter 2 (Uplink) without scrolling!
+            Anchored to the right edge with zero obstruction of the character.
             ───────────────────────────────────────────────────────────── */}
         <motion.div 
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full md:w-[420px] lg:w-[460px] pointer-events-auto"
+          className="w-full md:w-[330px] lg:w-[370px] pointer-events-auto shrink-0"
         >
           <AnimatePresence mode="wait">
             
@@ -407,61 +415,61 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.3 }}
-                className="glass-panel p-6 sm:p-7 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-5"
+                className="glass-panel p-5 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-4"
               >
-                <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-300 uppercase">
-                    <Cpu className="w-4 h-4 text-neon-cyan" />
+                    <Cpu className="w-3.5 h-3.5 text-neon-cyan" />
                     <span>SYSTEM CAPABILITIES</span>
                   </div>
-                  <span className="text-[11px] font-mono text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/20">
-                    5 ACTIVE ENGINES
+                  <span className="text-[10px] font-mono text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/20">
+                    5 ENGINES
                   </span>
                 </div>
 
-                <div className="space-y-2.5 text-xs font-mono">
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-neon-cyan/30 transition-colors">
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-neon-cyan/30 transition-colors">
                     <div className="text-white font-semibold flex items-center justify-between">
                       <span>01 // ONE-SWEEP RADIX SORT</span>
                       <span className="text-neon-cyan text-[10px]">WGSL</span>
                     </div>
-                    <p className="text-slate-400 mt-1 text-[11px] font-sans">
+                    <p className="text-slate-400 mt-0.5 text-[11px] font-sans">
                       10M+ point spatial indexing keeping Morton keys entirely in VRAM.
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-neon-crimson/30 transition-colors">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-neon-crimson/30 transition-colors">
                     <div className="text-white font-semibold flex items-center justify-between">
                       <span>02 // KERNEL VRAM PAGER</span>
                       <span className="text-neon-crimson text-[10px]">WEBGPU</span>
                     </div>
-                    <p className="text-slate-400 mt-1 text-[11px] font-sans">
+                    <p className="text-slate-400 mt-0.5 text-[11px] font-sans">
                       PCIe asynchronous ring-buffers streaming 8B LLM weights zero-GC.
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-400/30 transition-colors">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-400/30 transition-colors">
                     <div className="text-white font-semibold flex items-center justify-between">
                       <span>03 // ZERO-COPY AUTO-RIG</span>
                       <span className="text-green-400 text-[10px]">WORKERS</span>
                     </div>
-                    <p className="text-slate-400 mt-1 text-[11px] font-sans">
-                      SharedArrayBuffer multi-threaded skeletal rigging & ONNX mesh skinning.
+                    <p className="text-slate-400 mt-0.5 text-[11px] font-sans">
+                      SharedArrayBuffer multi-threaded skeletal rigging & ONNX skinning.
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 flex gap-3">
+                <div className="pt-1 flex gap-2.5">
                   <button
                     onClick={() => setActiveChapter(1)}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-white/[0.05] hover:bg-neon-cyan hover:text-slate-950 text-white font-mono text-xs font-semibold border border-white/[0.1] hover:border-neon-cyan transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-neon-cyan hover:text-slate-950 text-white font-mono text-xs font-semibold border border-white/[0.1] hover:border-neon-cyan transition-all flex items-center justify-center gap-1.5"
                   >
                     <span>EXPLORE VAULT</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setActiveChapter(2)}
-                    className="py-2.5 px-4 rounded-xl bg-slate-900/80 hover:bg-white/[0.08] text-slate-300 hover:text-white font-mono text-xs border border-white/[0.08] transition-all"
+                    className="py-2 px-3 rounded-xl bg-slate-900/80 hover:bg-white/[0.08] text-slate-300 hover:text-white font-mono text-xs border border-white/[0.08] transition-all"
                   >
                     UPLINK
                   </button>
@@ -477,26 +485,26 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.3 }}
-                className="glass-panel p-6 sm:p-7 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-5"
+                className="glass-panel p-5 rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl flex flex-col gap-4"
               >
                 {/* Vault Top Bar */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-300 uppercase">
-                    <Box className="w-4 h-4 text-neon-crimson" />
+                    <Box className="w-3.5 h-3.5 text-neon-crimson" />
                     <span>THE VAULT // 5 PRODUCTIONS</span>
                   </div>
-                  <span className="text-[11px] font-mono text-slate-400">
+                  <span className="text-[10px] font-mono text-slate-400">
                     {selectedProjectIndex + 1} / {VAULT_PROJECTS.length}
                   </span>
                 </div>
 
                 {/* Project Selector Mini-Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-[11px]">
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none font-mono text-[10px]">
                   {VAULT_PROJECTS.map((p, idx) => (
                     <button
                       key={p.id}
                       onClick={() => setSelectedProjectIndex(idx)}
-                      className={`px-2.5 py-1 rounded-lg transition-all whitespace-nowrap ${
+                      className={`px-2 py-1 rounded-md transition-all whitespace-nowrap ${
                         selectedProjectIndex === idx
                           ? 'bg-neon-crimson/20 text-neon-crimson border border-neon-crimson/40 font-semibold'
                           : 'bg-white/[0.03] text-slate-400 hover:text-white border border-white/[0.05]'
@@ -508,17 +516,17 @@ export default function Home() {
                 </div>
 
                 {/* Selected Project Card */}
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] flex flex-col gap-3">
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08] flex flex-col gap-2.5">
                   <div>
                     <div className="flex items-center justify-between">
-                      <h3 className="text-base font-bold text-white tracking-tight">
+                      <h3 className="text-sm font-bold text-white tracking-tight">
                         {activeProject.title}
                       </h3>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-slate-400 border border-white/[0.08]">
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-400 border border-white/[0.08]">
                         {activeProject.category}
                       </span>
                     </div>
-                    <div className="text-xs font-mono text-neon-cyan mt-0.5">
+                    <div className="text-[11px] font-mono text-neon-cyan mt-0.5">
                       {activeProject.benchmark}
                     </div>
                   </div>
@@ -528,11 +536,11 @@ export default function Home() {
                   </p>
 
                   {/* Tech Stack Chips */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
+                  <div className="flex flex-wrap gap-1 pt-0.5">
                     {activeProject.techStack.map((tech) => (
                       <span
                         key={tech}
-                        className="px-2 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[10px] font-mono text-slate-400"
+                        className="px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[9px] font-mono text-slate-400"
                       >
                         {tech}
                       </span>
@@ -541,18 +549,18 @@ export default function Home() {
                 </div>
 
                 {/* Action Controls & GitHub Link */}
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pt-0.5">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() =>
                         setSelectedProjectIndex((prev) =>
                           prev === 0 ? VAULT_PROJECTS.length - 1 : prev - 1
                         )
                       }
-                      className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors"
                       title="Previous System"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() =>
@@ -560,10 +568,10 @@ export default function Home() {
                           (prev + 1) % VAULT_PROJECTS.length
                         )
                       }
-                      className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors"
                       title="Next System"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
@@ -571,7 +579,7 @@ export default function Home() {
                     href={activeProject.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-2 px-4 rounded-xl bg-neon-crimson hover:bg-neon-crimson/90 text-white font-mono text-xs font-semibold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,0,85,0.3)]"
+                    className="py-1.5 px-3 rounded-xl bg-neon-crimson hover:bg-neon-crimson/90 text-white font-mono text-xs font-semibold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,0,85,0.3)]"
                   >
                     <span>INSPECT REPO</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -591,26 +599,26 @@ export default function Home() {
                 className="glass-panel rounded-2xl border border-white/[0.1] shadow-glass-card backdrop-blur-xl overflow-hidden"
               >
                 {/* Terminal Window Header */}
-                <div className="flex items-center justify-between px-5 py-3 bg-slate-950/80 border-b border-white/[0.08] text-xs font-mono text-slate-400">
+                <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950/80 border-b border-white/[0.08] text-xs font-mono text-slate-400">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
-                    <span className="ml-2 text-slate-300 font-semibold tracking-wider">
+                    <div className="w-2 h-2 rounded-full bg-red-500/80" />
+                    <div className="w-2 h-2 rounded-full bg-yellow-500/80" />
+                    <div className="w-2 h-2 rounded-full bg-green-500/80" />
+                    <span className="ml-1 text-slate-300 font-semibold tracking-wider text-[11px]">
                       UPLINK // TERMINAL_v3.2
                     </span>
                   </div>
-                  <span className="text-[11px] text-green-400">TLS 1.3</span>
+                  <span className="text-[10px] text-green-400">TLS 1.3</span>
                 </div>
 
-                <div className="p-6 font-mono text-xs flex flex-col gap-4">
+                <div className="p-4 sm:p-5 font-mono text-xs flex flex-col gap-3">
                   <p className="text-slate-400 leading-relaxed font-sans text-xs">
-                    Deploying WebGPU compute shaders, browser AI pipelines, or high-converting 3D funnels? Establish an immediate direct socket connection:
+                    Deploying WebGPU compute shaders, browser AI pipelines, or 3D funnels? Establish a direct socket uplink:
                   </p>
 
-                  <form onSubmit={handleTerminalSubmit} className="flex flex-col gap-3">
-                    <div className="flex items-center bg-slate-950/60 p-3 rounded-xl border border-white/[0.08] focus-within:border-neon-cyan transition-colors">
-                      <span className="text-neon-cyan font-bold select-none mr-2">
+                  <form onSubmit={handleTerminalSubmit} className="flex flex-col gap-2">
+                    <div className="flex items-center bg-slate-950/60 p-2.5 rounded-xl border border-white/[0.08] focus-within:border-neon-cyan transition-colors">
+                      <span className="text-neon-cyan font-bold select-none mr-2 text-[11px]">
                         user@guest:~$
                       </span>
                       <input
@@ -622,17 +630,17 @@ export default function Home() {
                         }}
                         placeholder="founder@studio.com"
                         disabled={terminalStatus === 'transmitting' || terminalStatus === 'connected'}
-                        className="flex-1 bg-transparent text-white placeholder-slate-600 focus:outline-none text-xs font-mono"
+                        className="flex-1 bg-transparent text-white placeholder-slate-600 focus:outline-none text-[11px] font-mono"
                       />
                       <button
                         type="submit"
                         disabled={terminalStatus === 'transmitting' || terminalStatus === 'connected'}
-                        className="ml-2 px-3 py-1 rounded-lg bg-neon-cyan hover:bg-neon-cyan/90 text-slate-950 font-bold text-xs transition-all disabled:opacity-50"
+                        className="ml-1.5 px-2.5 py-1 rounded-lg bg-neon-cyan hover:bg-neon-cyan/90 text-slate-950 font-bold text-xs transition-all disabled:opacity-50"
                       >
                         {terminalStatus === 'transmitting' ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-3 h-3 animate-spin" />
                         ) : terminalStatus === 'connected' ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <Check className="w-3 h-3" />
                         ) : (
                           'SEND'
                         )}
@@ -643,7 +651,7 @@ export default function Home() {
                   {/* Terminal Execution Feedback */}
                   {terminalLog && (
                     <div
-                      className={`text-[11px] p-2.5 rounded-lg border font-mono ${
+                      className={`text-[10px] p-2 rounded-lg border font-mono ${
                         terminalStatus === 'connected'
                           ? 'bg-green-500/10 border-green-500/30 text-green-300'
                           : terminalStatus === 'error'
@@ -655,7 +663,7 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-white/[0.06]">
+                  <div className="pt-1.5 flex items-center justify-between text-[10px] text-slate-500 border-t border-white/[0.06]">
                     <span>DISCORD // @iki.gpu</span>
                     <a 
                       href="https://github.com/nff747" 
@@ -676,10 +684,10 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           MINIMALIST STATUS FOOTER
           ═══════════════════════════════════════════════════════════════ */}
-      <footer className="relative z-20 w-full px-6 lg:px-12 pb-4 text-xs font-mono text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 pointer-events-auto">
+      <footer className="relative z-20 w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 pb-3 text-xs font-mono text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 pointer-events-auto">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-          <span>RUNTIME: OPTIMAL // ACES FILMIC // NPC KINEMATICS ACTIVE</span>
+          <span>RUNTIME: OPTIMAL // ACES FILMIC // ZERO CHARACTER OCCLUSION</span>
         </div>
         <div>
           <span>© 2026 iKi // WebGL Performance Architecture</span>

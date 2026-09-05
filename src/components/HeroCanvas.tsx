@@ -397,28 +397,34 @@ function LivingCharacter({ pointer, activeChapter = 0, manualEmote, onEmoteChang
 }
 
 // ═════════════════════════════════════════════════════════════════
-// 3D CAMERA CONTROLLER: ANIMATED SCROLL & CHAPTER SPATIAL GLIDE
+// 3D CAMERA CONTROLLER: ANIMATED SCROLL & CHARACTER FRAMING
+// Calibrated to keep the character centered, perfectly proportioned,
+// and 100% UNCOVERED by any side UI panels.
 // ═════════════════════════════════════════════════════════════════
 function CameraController({ activeChapter = 0 }: { activeChapter?: number }) {
   useFrame((state, delta) => {
+    // Exact portrait bust framing: Z = 0.78 distance (matches Img 3)
+    // In Chapter 0: Character is centered with generous breathing room
+    // In Chapter 1 & 2: Camera glides slightly to the right, placing the character
+    // safely in the left-center stage so the right-side cards never overlap her!
     let targetX = 0.0;
-    let targetY = 0.12;
-    let targetZ = 0.52;
+    let targetY = 0.06;
+    let targetZ = 0.78;
     let lookAtX = 0.0;
-    let lookAtY = 0.10;
+    let lookAtY = 0.06;
 
     if (activeChapter === 1) {
-      targetX = -0.07;
-      targetY = 0.11;
-      targetZ = 0.50;
-      lookAtX = 0.02;
-      lookAtY = 0.10;
+      targetX = 0.13;
+      targetY = 0.06;
+      targetZ = 0.76;
+      lookAtX = -0.04;
+      lookAtY = 0.06;
     } else if (activeChapter === 2) {
-      targetX = 0.06;
-      targetY = 0.12;
-      targetZ = 0.49;
-      lookAtX = -0.02;
-      lookAtY = 0.10;
+      targetX = 0.13;
+      targetY = 0.06;
+      targetZ = 0.76;
+      lookAtX = -0.04;
+      lookAtY = 0.06;
     }
 
     state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX, 3.5 * delta);
@@ -474,8 +480,8 @@ export function HeroCanvas({ activeChapter = 0, manualEmote = null, onEmoteChang
       onPointerMove={handlePointerMove}
     >
       <Canvas
-        // Exact portrait bust framing matching Img 3
-        camera={{ position: [0, 0.12, 0.52], fov: 32 }}
+        // Exact portrait bust framing matching Img 3 (distance 0.78, FOV 34)
+        camera={{ position: [0, 0.06, 0.78], fov: 34 }}
         shadows
         gl={{
           powerPreference: 'high-performance',
@@ -540,7 +546,7 @@ export function HeroCanvas({ activeChapter = 0, manualEmote = null, onEmoteChang
       </Canvas>
 
       {/* Gentle bottom fade into void to strictly prevent any lower chest exposure */}
-      <div className="absolute inset-x-0 bottom-0 h-48 md:h-60 bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-40 md:h-48 bg-gradient-to-t from-void via-void/90 to-transparent pointer-events-none z-10" />
     </div>
   );
 }
