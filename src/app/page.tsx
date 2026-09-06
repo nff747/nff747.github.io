@@ -49,6 +49,17 @@ interface Project {
 
 const VAULT_PROJECTS: Project[] = [
   {
+    id: 'helix-lsm',
+    title: 'Helix LSM Engine',
+    subtitle: 'Distributed Lock-Free LSM-Tree Storage Engine',
+    benchmark: '1.2M+ IOPS // Zero-Mutex SkipList Ingestion',
+    description: 'Kernel-grade distributed LSM-tree key-value database in Rust. Implements lock-free MemTable skip lists, group-commit crash-consistent WAL, and background multi-way leveled compaction with tombstone purging.',
+    techStack: ['Rust', 'Lock-Free SkipList', 'WAL Group-Commit', 'Leveled Compaction', 'Bloom Filters', 'Consistent Hashing'],
+    githubUrl: 'https://github.com/nff747/helix-lsm',
+    accent: '#38bdf8',
+    category: 'STORAGE',
+  },
+  {
     id: 'splat-bvh',
     title: 'Splat BVH Core',
     subtitle: 'WGSL 1-Sweep Radix Sort & BVH Tree',
@@ -687,7 +698,7 @@ export default function Home() {
                     <span><ScrambleText text="SYSTEM CAPABILITIES" /></span>
                   </div>
                   <span className="text-[10px] font-mono text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/20">
-                    5 ENGINES
+                    6 ENGINES
                   </span>
                 </div>
 
@@ -770,7 +781,7 @@ export default function Home() {
                 <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-300 uppercase">
                     <Box className="w-3.5 h-3.5 text-neon-crimson" />
-                    <span><ScrambleText text="THE VAULT // 5 PRODUCTIONS" /></span>
+                    <span><ScrambleText text="THE VAULT // 6 PRODUCTIONS" /></span>
                   </div>
                   <span className="text-[10px] font-mono text-slate-400">
                     {selectedProjectIndex + 1} / {VAULT_PROJECTS.length}
