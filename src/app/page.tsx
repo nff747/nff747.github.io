@@ -60,6 +60,17 @@ const VAULT_PROJECTS: Project[] = [
     category: 'STORAGE',
   },
   {
+    id: 'swarm-refactor',
+    title: 'SwarmRefactor',
+    subtitle: 'Actor Model Autonomous Code Healing Swarm',
+    benchmark: '89.3% Pass@3 SWE-bench // Zero-Lock Mailbox',
+    description: 'Erlang-style Actor Model multi-agent cluster orchestrating autonomous Manager, Worker, and Critic agents. Executes unit tests in ephemeral sandboxes and iteratively self-corrects using AST skeletonization and runtime causality extraction.',
+    techStack: ['Python 3.12', 'Actor Model', 'vLLM / Ollama', 'AST Skeletonization', 'Subprocess Sandbox', 'Pytest Reflection'],
+    githubUrl: 'https://github.com/nff747/swarm-refactor',
+    accent: '#f59e0b',
+    category: 'AI_SYSTEMS',
+  },
+  {
     id: 'splat-bvh',
     title: 'Splat BVH Core',
     subtitle: 'WGSL 1-Sweep Radix Sort & BVH Tree',
