@@ -125,6 +125,28 @@ const VAULT_PROJECTS: Project[] = [
     accent: '#a855f7',
     category: 'ACCESSIBILITY',
   },
+  {
+    id: 'aerocache',
+    title: 'AeroCache',
+    subtitle: 'Zero-Allocation Off-Heap Memory Engine',
+    benchmark: '13.4M+ Ops/Sec // 0.04µs p50 // Zero GC Pauses',
+    description: 'Ultra-low latency Redis-compatible caching server in Java using direct off-heap sun.misc.Unsafe memory management. Features single-threaded non-blocking Java NIO event loop and GC-bypassing linear probing hash tables.',
+    techStack: ['Java 21+', 'sun.misc.Unsafe', 'Direct Memory', 'Java NIO Epoll', 'Zero-GC', 'RESP Protocol'],
+    githubUrl: 'https://github.com/nff747/aerocache',
+    accent: '#06b6d4',
+    category: 'STORAGE_ENGINE',
+  },
+  {
+    id: 'nova-wasm',
+    title: 'Nova Compiler',
+    subtitle: 'Direct-to-Wasm Systems Language & JIT',
+    benchmark: '< 250µs Compilation // LLVM-Bypassing Binary Emitter',
+    description: 'Statically typed systems language and Just-In-Time compiler in Rust emitting raw WebAssembly bytecode and WAT S-expressions without LLVM overhead. Features hardware-near linear memory intrinsics and seamless Next.js interoperability.',
+    techStack: ['Rust', 'WebAssembly (Wasm)', 'Recursive Descent', 'Pratt Parser', 'Linear Memory', 'LEB128 Encoding'],
+    githubUrl: 'https://github.com/nff747/nova-wasm',
+    accent: '#ec4899',
+    category: 'COMPILERS',
+  },
 ];
 
 export default function Home() {
@@ -306,7 +328,7 @@ export default function Home() {
       case 'projects':
         VAULT_PROJECTS.forEach((p, idx) => {
           newLogs.push({
-            text: `[0${idx + 1}] ${p.title} // ${p.benchmark}`,
+            text: `[${String(idx + 1).padStart(2, '0')}] ${p.title} // ${p.benchmark}`,
             type: 'success',
           });
         });
