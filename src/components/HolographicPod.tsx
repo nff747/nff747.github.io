@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Download, ExternalLink, Info } from "lucide-react";
+import { Download, ExternalLink, Terminal, CheckCircle2 } from "lucide-react";
 
 interface ProjectItem {
   id: string;
@@ -40,77 +40,69 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
     let animId: number;
     let time = Math.random() * 100;
 
-    const width = 480;
-    const height = 240;
+    const width = 560;
+    const height = 300;
     canvas.width = width;
     canvas.height = height;
 
     const render = () => {
-      time += 0.03;
+      time += 0.025;
       ctx.clearRect(0, 0, width, height);
 
-      // Deep dark chamber background
+      // Deep cybernetic dark chamber
       const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-      bgGrad.addColorStop(0, "#030712");
-      bgGrad.addColorStop(0.5, "#060d1d");
-      bgGrad.addColorStop(1, "#020408");
+      bgGrad.addColorStop(0, "#040814");
+      bgGrad.addColorStop(0.5, "#081226");
+      bgGrad.addColorStop(1, "#020409");
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
       // Perspective floor grid
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.12)";
+      ctx.strokeStyle = "rgba(6, 182, 212, 0.15)";
       ctx.lineWidth = 1;
-      const horizon = height * 0.72;
+      const horizon = height * 0.74;
       const vanishingX = width / 2;
 
-      // Floor grid lines
-      for (let i = -12; i <= 12; i++) {
+      for (let i = -14; i <= 14; i++) {
         ctx.beginPath();
-        ctx.moveTo(vanishingX + i * 15, horizon);
-        ctx.lineTo(vanishingX + i * 55, height);
+        ctx.moveTo(vanishingX + i * 18, horizon);
+        ctx.lineTo(vanishingX + i * 65, height);
         ctx.stroke();
       }
-      for (let y = horizon; y < height; y += (y - horizon) * 0.45 + 5) {
+      for (let y = horizon; y < height; y += (y - horizon) * 0.42 + 6) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
         ctx.stroke();
       }
 
-      // Draw specialized 3D hologram based on project ID
       const cx = width * 0.5;
-      const cy = height * 0.44;
+      const cy = height * 0.46;
 
       if (project.id === "auto-rig-web") {
         // ── 3D HOLOGRAPHIC HUMANOID SKELETON ──
-        const rot = time * 0.7;
-        const scale = 1.1;
+        const rot = time * 0.65;
+        const scale = 1.25;
 
-        // Joints definition in 3D (x, y, z)
         const joints: [number, number, number][] = [
-          [0, -65, 0],   // 0: Head
-          [0, -45, 0],   // 1: Neck
-          [0, -15, 0],   // 2: Spine / Chest
+          [0, -70, 0],   // 0: Head
+          [0, -50, 0],   // 1: Neck
+          [0, -20, 0],   // 2: Spine / Chest
           [0, 15, 0],    // 3: Pelvis
-          // Left arm
-          [-22, -40, 0], // 4: L Shoulder
-          [-35, -15, Math.sin(time) * 10], // 5: L Elbow
-          [-48, 10, Math.sin(time) * 20],  // 6: L Hand
-          // Right arm
-          [22, -40, 0],  // 7: R Shoulder
-          [35, -15, -Math.sin(time) * 10], // 8: R Elbow
-          [48, 10, -Math.sin(time) * 20],  // 9: R Hand
-          // Left leg
-          [-14, 20, 0],  // 10: L Hip
-          [-16, 50, Math.cos(time) * 10],  // 11: L Knee
-          [-18, 80, Math.cos(time) * 15],  // 12: L Foot
-          // Right leg
-          [14, 20, 0],   // 13: R Hip
-          [16, 50, -Math.cos(time) * 10], // 14: R Knee
-          [18, 80, -Math.cos(time) * 15], // 15: R Foot
+          [-25, -45, 0], // 4: L Shoulder
+          [-42, -20, Math.sin(time) * 12], // 5: L Elbow
+          [-58, 5, Math.sin(time) * 22],   // 6: L Hand
+          [25, -45, 0],  // 7: R Shoulder
+          [42, -20, -Math.sin(time) * 12], // 8: R Elbow
+          [58, 5, -Math.sin(time) * 22],   // 9: R Hand
+          [-16, 22, 0],  // 10: L Hip
+          [-20, 56, Math.cos(time) * 12],  // 11: L Knee
+          [-22, 90, Math.cos(time) * 18],  // 12: L Foot
+          [16, 22, 0],   // 13: R Hip
+          [20, 56, -Math.cos(time) * 12], // 14: R Knee
+          [22, 90, -Math.cos(time) * 18], // 15: R Foot
         ];
 
-        // Bones connecting joints
         const bones = [
           [0, 1], [1, 2], [2, 3],
           [1, 4], [4, 5], [5, 6],
@@ -119,13 +111,12 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           [3, 13], [13, 14], [14, 15]
         ];
 
-        // Project 3D points with rotation
         const projected = joints.map(([x, y, z]) => {
           const cosR = Math.cos(rot);
           const sinR = Math.sin(rot);
           const rx = x * cosR - z * sinR;
           const rz = x * sinR + z * cosR;
-          const fov = 200;
+          const fov = 240;
           const pScale = fov / (fov + rz);
           return {
             px: cx + rx * scale * pScale,
@@ -134,17 +125,18 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           };
         });
 
-        // Draw Holo Rings around avatar
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.4)";
+        // Floor Pedestal Rings
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.45)";
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.ellipse(cx, cy + 85, 45, 12, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy + 95, 55, 14, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Draw Bones
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.85)";
-        ctx.lineWidth = 2;
+        // Glowing Wireframe Skeleton
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.9)";
+        ctx.lineWidth = 2.5;
         ctx.shadowColor = "#00f0ff";
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         bones.forEach(([a, b]) => {
           ctx.beginPath();
           ctx.moveTo(projected[a].px, projected[a].py);
@@ -152,46 +144,44 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           ctx.stroke();
         });
 
-        // Draw Joints
+        // Joints
         projected.forEach((p, idx) => {
-          ctx.fillStyle = idx === 0 || idx === 6 || idx === 9 ? "#a855f7" : "#38bdf8";
+          ctx.fillStyle = idx === 0 || idx === 6 || idx === 9 ? "#c084fc" : "#38bdf8";
           ctx.beginPath();
-          ctx.arc(p.px, p.py, idx === 0 ? 5 : 3.5, 0, Math.PI * 2);
+          ctx.arc(p.px, p.py, idx === 0 ? 6 : 4, 0, Math.PI * 2);
           ctx.fill();
         });
 
-        // Floating telemetry boxes in HUD
+        // Left HUD Floating Widget (Free Thread Rigging)
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.35)";
+        ctx.fillStyle = "rgba(9, 14, 26, 0.85)";
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.4)";
         ctx.lineWidth = 1;
-
-        // Left HUD widget
-        ctx.strokeRect(18, 20, 110, 52);
-        ctx.fillRect(18, 20, 110, 52);
+        ctx.strokeRect(20, 25, 125, 60);
+        ctx.fillRect(20, 25, 125, 60);
         ctx.fillStyle = "#38bdf8";
-        ctx.font = "bold 8px monospace";
-        ctx.fillText("IK SOLVER ACTIVE", 24, 34);
+        ctx.font = "bold 9px monospace";
+        ctx.fillText("FREE THREAD RIGGING", 28, 42);
         ctx.fillStyle = "#94a3b8";
-        ctx.fillText("Threads: WebWorker", 24, 46);
-        ctx.fillText("Latency: 0.12ms", 24, 58);
+        ctx.fillText("Auto-Detect: 19 Joints", 28, 56);
+        ctx.fillText("Yield: 60 FPS CCDIK", 28, 70);
 
-        // Right HUD widget
-        ctx.strokeRect(width - 128, 20, 110, 52);
-        ctx.fillRect(width - 128, 20, 110, 52);
+        // Right HUD Floating Widget (ONNX Tensor Inference)
+        ctx.strokeRect(width - 145, 25, 125, 60);
+        ctx.fillRect(width - 145, 25, 125, 60);
         ctx.fillStyle = "#a855f7";
-        ctx.fillText("SKINNING MATRIX", width - 122, 34);
+        ctx.fillText("CCDIK SOLVER", width - 137, 42);
         ctx.fillStyle = "#94a3b8";
-        ctx.fillText("Joints: 19 Verified", width - 122, 46);
-        ctx.fillText("Yield: 60 FPS", width - 122, 58);
+        ctx.fillText("Latency: 0.12ms", width - 137, 56);
+        ctx.fillText("Worker: Zero-Copy", width - 137, 70);
 
       } else if (project.id === "splat-bvh-core") {
-        // ── 3D GAUSSIAN SPLATTING NEBULA & LBVH BOUNDING BOXES ──
-        const rot = time * 0.5;
-        const particleCount = 80;
+        // ── 3D GAUSSIAN SPLAT VORTEX & LBVH BOUNDING HIERARCHY ──
+        const rot = time * 0.55;
+        const particleCount = 110;
 
-        // Draw 3D wireframe bounding box
-        const boxSize = 55;
+        // Draw 3D wireframe bounding box hierarchy
+        const boxSize = 65;
         const boxVerts = [
           [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
           [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
@@ -200,13 +190,10 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           const sinR = Math.sin(rot);
           const rx = x * boxSize * cosR - z * boxSize * sinR;
           const rz = x * boxSize * sinR + z * boxSize * cosR;
-          const ry = y * boxSize * 0.7;
-          const fov = 220;
+          const ry = y * boxSize * 0.65;
+          const fov = 260;
           const pScale = fov / (fov + rz);
-          return {
-            px: cx + rx * pScale,
-            py: cy + ry * pScale
-          };
+          return { px: cx + rx * pScale, py: cy + ry * pScale };
         });
 
         const boxEdges = [
@@ -215,7 +202,7 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           [0,4],[1,5],[2,6],[3,7]
         ];
 
-        ctx.strokeStyle = "rgba(236, 72, 153, 0.4)";
+        ctx.strokeStyle = "rgba(236, 72, 153, 0.45)";
         ctx.lineWidth = 1;
         boxEdges.forEach(([a, b]) => {
           ctx.beginPath();
@@ -224,112 +211,75 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           ctx.stroke();
         });
 
-        // Draw Colorful Splats Swarm
+        // Multi-Color Splat Nebula Swarm
         for (let i = 0; i < particleCount; i++) {
-          const pAngle = i * 0.3 + time;
-          const radius = 25 + (i % 30) * 1.5 + Math.sin(time + i) * 6;
+          const pAngle = i * 0.28 + time * 1.2;
+          const radius = 28 + (i % 38) * 1.6 + Math.sin(time + i) * 8;
           const px3d = Math.cos(pAngle) * radius;
-          const py3d = Math.sin(i * 1.5) * 22 + Math.sin(time * 2 + i) * 8;
+          const py3d = Math.sin(i * 1.4) * 26 + Math.sin(time * 2 + i) * 9;
           const pz3d = Math.sin(pAngle) * radius;
 
           const cosR = Math.cos(rot);
           const sinR = Math.sin(rot);
           const rx = px3d * cosR - pz3d * sinR;
           const rz = px3d * sinR + pz3d * cosR;
-          const fov = 220;
+          const fov = 260;
           const pScale = fov / (fov + rz);
 
           const screenX = cx + rx * pScale;
           const screenY = cy + py3d * pScale;
 
-          // Splat color palette (cyan, pink, amber, purple)
-          const colors = ["#06b6d4", "#ec4899", "#f59e0b", "#a855f7", "#38bdf8"];
+          const colors = ["#06b6d4", "#ec4899", "#f59e0b", "#c084fc", "#38bdf8", "#fb7185"];
           const splatColor = colors[i % colors.length];
 
           ctx.fillStyle = splatColor;
           ctx.shadowColor = splatColor;
-          ctx.shadowBlur = 8;
+          ctx.shadowBlur = 10;
           ctx.beginPath();
-          ctx.arc(screenX, screenY, Math.max(1, (3 + (i % 3)) * pScale), 0, Math.PI * 2);
+          ctx.arc(screenX, screenY, Math.max(1.2, (3.5 + (i % 3)) * pScale), 0, Math.PI * 2);
           ctx.fill();
         }
 
         ctx.shadowBlur = 0;
-        // HUD widget
-        ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-        ctx.strokeStyle = "rgba(236, 72, 153, 0.35)";
-        ctx.strokeRect(18, 20, 115, 52);
-        ctx.fillRect(18, 20, 115, 52);
+        // Left HUD Floating Widget
+        ctx.fillStyle = "rgba(9, 14, 26, 0.85)";
+        ctx.strokeStyle = "rgba(236, 72, 153, 0.4)";
+        ctx.strokeRect(20, 25, 125, 60);
+        ctx.fillRect(20, 25, 125, 60);
         ctx.fillStyle = "#ec4899";
-        ctx.font = "bold 8px monospace";
-        ctx.fillText("LBVH GPU RADIX", 24, 34);
+        ctx.font = "bold 9px monospace";
+        ctx.fillText("GPU RADIX LBVH", 28, 42);
         ctx.fillStyle = "#94a3b8";
-        ctx.fillText("Morton Codes: 64b", 24, 46);
-        ctx.fillText("Ray Throughput: 1.2M", 24, 58);
+        ctx.fillText("Morton Codes: 64b", 28, 56);
+        ctx.fillText("Traversal: 1.2M Rays", 28, 70);
 
-      } else if (project.id === "helix-lsm") {
-        // ── 3D DISTRIBUTED LSM TREE CRYSTAL STACK ──
-        const rot = time * 0.8;
-        const levels = 5;
-
-        for (let l = 0; l < levels; l++) {
-          const lY = cy - 40 + l * 20;
-          const lRadius = 55 - l * 6;
-          const cosR = Math.cos(rot + l * 0.4);
-
-          ctx.strokeStyle = l === 0 ? "rgba(56, 189, 248, 0.8)" : "rgba(239, 68, 68, 0.7)";
-          ctx.shadowColor = l === 0 ? "#38bdf8" : "#ef4444";
-          ctx.shadowBlur = 6;
-          ctx.lineWidth = 1.5;
-
-          ctx.beginPath();
-          ctx.ellipse(cx, lY, lRadius, lRadius * 0.35, 0, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Nodes along ring
-          for (let n = 0; n < 4; n++) {
-            const angle = n * (Math.PI / 2) + rot + l * 0.5;
-            const nx = cx + Math.cos(angle) * lRadius;
-            const ny = lY + Math.sin(angle) * lRadius * 0.35;
-
-            ctx.fillStyle = l === 0 ? "#38bdf8" : "#f87171";
-            ctx.beginPath();
-            ctx.arc(nx, ny, 3, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-        ctx.strokeStyle = "rgba(239, 68, 68, 0.35)";
-        ctx.strokeRect(18, 20, 115, 52);
-        ctx.fillRect(18, 20, 115, 52);
-        ctx.fillStyle = "#ef4444";
-        ctx.font = "bold 8px monospace";
-        ctx.fillText("LSM CONCURRENT WAL", 24, 34);
+        // Right HUD Floating Widget
+        ctx.strokeRect(width - 145, 25, 125, 60);
+        ctx.fillRect(width - 145, 25, 125, 60);
+        ctx.fillStyle = "#06b6d4";
+        ctx.fillText("3D GAUSSIAN SPLATS", width - 137, 42);
         ctx.fillStyle = "#94a3b8";
-        ctx.fillText("Compaction: L0 -> L6", 24, 46);
-        ctx.fillText("IOPS: 1.4M (Lock-Free)", 24, 58);
+        ctx.fillText("Tree Depth: 16", width - 137, 56);
+        ctx.fillText("Memory: VRAM-Only", width - 137, 70);
 
       } else {
-        // ── 3D CYBERNETIC COMPUTING MATRIX FOR OTHER PROJECTS ──
-        const rot = time * 0.6;
-        const count = 36;
+        // ── 3D CYBERNETIC COMPUTING MATRIX CORES ──
+        const rot = time * 0.7;
+        const count = 42;
 
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.6)";
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.65)";
         ctx.shadowColor = project.accent || "#06b6d4";
-        ctx.shadowBlur = 8;
-        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 10;
+        ctx.lineWidth = 1.8;
 
-        // Rotating central 3D octahedron
         const shapeVerts = [
-          [0, -45, 0], [40, 0, 0], [0, 0, 40], [-40, 0, 0], [0, 0, -40], [0, 45, 0]
+          [0, -50, 0], [45, 0, 0], [0, 0, 45], [-45, 0, 0], [0, 0, -45], [0, 50, 0]
         ].map(([x, y, z]) => {
           const cosR = Math.cos(rot);
           const sinR = Math.sin(rot);
           const rx = x * cosR - z * sinR;
           const rz = x * sinR + z * cosR;
-          const fov = 200;
+          const fov = 220;
           const pScale = fov / (fov + rz);
           return { px: cx + rx * pScale, py: cy + y * pScale };
         });
@@ -347,34 +297,33 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           ctx.stroke();
         });
 
-        // Orbiting data nodes
         for (let i = 0; i < count; i++) {
-          const ang = i * ((Math.PI * 2) / count) + rot * 1.5;
-          const rad = 65 + Math.sin(time * 3 + i) * 8;
+          const ang = i * ((Math.PI * 2) / count) + rot * 1.6;
+          const rad = 72 + Math.sin(time * 3 + i) * 10;
           const px = cx + Math.cos(ang) * rad;
-          const py = cy + Math.sin(ang) * rad * 0.4;
+          const py = cy + Math.sin(ang) * rad * 0.38;
 
           ctx.fillStyle = project.accent || "#06b6d4";
           ctx.beginPath();
-          ctx.arc(px, py, 2, 0, Math.PI * 2);
+          ctx.arc(px, py, 2.5, 0, Math.PI * 2);
           ctx.fill();
         }
 
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-        ctx.strokeRect(18, 20, 120, 52);
-        ctx.fillRect(18, 20, 120, 52);
+        ctx.fillStyle = "rgba(9, 14, 26, 0.85)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.strokeRect(20, 25, 125, 60);
+        ctx.fillRect(20, 25, 125, 60);
         ctx.fillStyle = "#38bdf8";
-        ctx.font = "bold 8px monospace";
-        ctx.fillText(project.badge.toUpperCase(), 24, 34);
+        ctx.font = "bold 9px monospace";
+        ctx.fillText(project.badge.toUpperCase(), 28, 42);
         ctx.fillStyle = "#94a3b8";
-        ctx.fillText(project.lang, 24, 46);
-        ctx.fillText("Status: PRODUCTION", 24, 58);
+        ctx.fillText(`Lang: ${project.lang}`, 28, 56);
+        ctx.fillText("Status: PRODUCTION", 28, 70);
       }
 
-      // Scanline effect
-      ctx.fillStyle = "rgba(6, 182, 212, 0.04)";
+      // Scanline overlay
+      ctx.fillStyle = "rgba(6, 182, 212, 0.035)";
       for (let sl = 0; sl < height; sl += 4) {
         ctx.fillRect(0, sl, width, 1);
       }
@@ -390,26 +339,27 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
   }, [project]);
 
   return (
-    <div className="relative group rounded-xl overflow-hidden bg-[#070d18] border border-cyan-500/25 shadow-[0_10px_35px_rgba(0,0,0,0.8)] hover:border-cyan-400/60 transition-all duration-300 flex flex-col">
+    <div className="relative rounded-2xl overflow-hidden bg-[#070e1b] border-2 border-slate-700/80 shadow-[0_15px_40px_rgba(0,0,0,0.9)] flex flex-col font-mono">
+      
       {/* Pod Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#03060f] border-b border-white/[0.08] font-mono text-[11px]">
+      <div className="flex items-center justify-between px-4 py-2 bg-[#040813] border-b border-white/10 text-xs">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
           <span className="text-cyan-400 font-bold">{project.sysId}</span>
           <span className="text-slate-500">//</span>
           <span className="text-white font-bold tracking-tight">{project.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] border border-cyan-500/30 font-bold">
-            {project.lang}
+          <span className="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 text-[10px] border border-cyan-500/40 font-bold">
+            {project.badge}
           </span>
-          <span className="text-[10px] text-emerald-400 uppercase font-mono">ONLINE</span>
+          <span className="text-[10px] text-emerald-400 uppercase font-bold">ACTIVE</span>
         </div>
       </div>
 
       {/* Hologram Chamber Display */}
       <div 
-        className="relative aspect-[2/1] w-full overflow-hidden bg-[#02050b] cursor-pointer"
+        className="relative aspect-[16/9] w-full overflow-hidden bg-[#02050c] cursor-pointer group"
         onClick={() => {
           onAudioBlip(750);
           onOpenDetails(project);
@@ -418,27 +368,21 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
         <canvas ref={canvasRef} className="w-full h-full block" />
         
         {/* Hologram Glass Bevel & Glare */}
-        <div className="absolute inset-0 pointer-events-none border-y border-cyan-500/20 bg-gradient-to-b from-cyan-500/5 via-transparent to-black/60" />
-
-        {/* Hover inspect banner */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md px-2.5 py-1 rounded text-[10px] text-cyan-300 border border-cyan-500/40 font-mono flex items-center gap-1.5 pointer-events-none">
-          <Info className="w-3 h-3" />
-          <span>INSPECT POD</span>
-        </div>
+        <div className="absolute inset-0 pointer-events-none border-y border-cyan-500/20 bg-gradient-to-b from-cyan-500/5 via-transparent to-black/70" />
       </div>
 
       {/* Card Info & Actions Footer */}
-      <div className="p-4 bg-[#050a14] flex-1 flex flex-col justify-between font-mono space-y-3">
+      <div className="p-4 bg-[#060b17] border-t border-white/10 flex-1 flex flex-col justify-between space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-white tracking-tight line-clamp-1 mb-1 group-hover:text-cyan-300 transition-colors">
+          <h3 className="text-base font-bold text-white tracking-tight line-clamp-1 mb-1">
             {project.tagline}
           </h3>
-          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
             {project.description}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06]">
+        <div className="flex items-center gap-2 pt-2 border-t border-white/[0.08]">
           <a
             href={project.zipUrl}
             download
@@ -446,9 +390,9 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
               e.stopPropagation();
               onAudioBlip(1000);
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-[0.98] transition-all"
           >
-            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Download className="w-4 h-4 stroke-[2.5]" />
             <span>DOWNLOAD .ZIP</span>
           </a>
 
@@ -457,9 +401,9 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
               onAudioBlip(800);
               onOpenDetails(project);
             }}
-            className="px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] text-xs transition-colors flex items-center gap-1"
+            className="px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-xs transition-colors"
           >
-            <span>SPECS</span>
+            SPECS
           </button>
 
           <a
@@ -467,10 +411,10 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/[0.08] transition-colors"
-            title="View Source on GitHub"
+            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors"
+            title="View on GitHub"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-4 h-4" />
           </a>
         </div>
       </div>

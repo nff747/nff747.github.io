@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Download, FolderArchive, CheckCircle2, Terminal, 
-  ExternalLink, X, ShieldCheck, Cpu, HardDrive, 
-  Share2, Lock, Copy, Check, Sparkles, Box
+  ExternalLink, X, ShieldCheck, HardDrive, 
+  Lock, Copy, Check, Sparkles, ChevronLeft, ChevronRight, LayoutGrid, Monitor
 } from 'lucide-react';
 import { HolographicPod } from '../../components/HolographicPod';
 
@@ -299,6 +299,8 @@ export default function DownloadHub() {
   const [activeModalProject, setActiveModalProject] = useState<ProjectItem | null>(null);
   const [activeTab, setActiveTab] = useState<'bash' | 'python' | 'batch'>('bash');
   const [copied, setCopied] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [viewMode, setViewMode] = useState<'console' | 'grid'>('console');
 
   const cyberAudio = useCyberAudio();
 
@@ -334,6 +336,11 @@ export default function DownloadHub() {
     });
   }, [searchQuery, selectedCategory]);
 
+  const maxPage = Math.max(0, Math.ceil(filteredProjects.length / 2) - 1);
+  const visibleProjects = viewMode === 'console' 
+    ? filteredProjects.slice(pageIndex * 2, pageIndex * 2 + 2)
+    : filteredProjects;
+
   return (
     <div className="min-h-screen bg-[#06090e] text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden p-2 md:p-6 lg:p-8 flex flex-col items-center justify-center">
       
@@ -348,7 +355,6 @@ export default function DownloadHub() {
               <span className="w-3 h-3 rounded-full bg-amber-600/80 border border-amber-400/50 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
               <span className="w-3 h-3 rounded-full bg-emerald-600/80 border border-emerald-400/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             </div>
-            {/* Pneumatic Cylinder Mock */}
             <div className="hidden sm:flex items-center gap-2">
               <div className="w-16 h-2 rounded-full bg-slate-800 border border-slate-600/60 shadow-inner" />
               <div className="w-6 h-3 rounded bg-slate-700 border border-slate-500/80" />
@@ -370,7 +376,7 @@ export default function DownloadHub() {
         {/* MAIN TERMINAL SCREEN ENCLOSURE */}
         <div className="relative flex-1 bg-[#02050b] flex flex-col">
           
-          {/* LEFT & RIGHT SERVER BLADE RACKS WITH GLOWING CABLE BUNDLES (DESKTOP) */}
+          {/* LEFT & RIGHT SERVER BLADE RACKS WITH GLOWING CABLES */}
           <div className="absolute left-0 top-0 bottom-0 w-12 hidden 2xl:flex flex-col items-center justify-between py-8 bg-[#080d17] border-r-2 border-slate-800/80 z-20 select-none">
             <div className="space-y-4">
               <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-ping" />
@@ -399,13 +405,11 @@ export default function DownloadHub() {
             {/* ── TOP BROWSER & HUD STATUS BAR ── */}
             <div className="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl bg-[#090f1d] border border-cyan-500/20 shadow-md font-mono text-xs">
               
-              {/* Address Search Bar */}
               <div className="flex-1 min-w-[280px] max-w-xl flex items-center gap-2.5 px-4 py-2 rounded-lg bg-[#04070f] border border-white/10 text-slate-300">
                 <Lock className="w-3.5 h-3.5 text-emerald-400" />
                 <span className="text-white font-bold tracking-wide">nff747.github.io/download/</span>
               </div>
 
-              {/* Status Badges */}
               <div className="flex items-center flex-wrap gap-2.5">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-bold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -452,7 +456,6 @@ export default function DownloadHub() {
                   <span>AUTOMATED COMPILATION DOWNLD LOADER</span>
                 </div>
 
-                {/* Tabs */}
                 <div className="flex items-center gap-1.5 p-1 rounded-lg bg-black/60 border border-white/10 text-xs">
                   {(['bash', 'python', 'batch'] as const).map((tab) => (
                     <button
@@ -511,6 +514,7 @@ export default function DownloadHub() {
                       onClick={() => {
                         cyberAudio.playHoverBlip(900);
                         setSelectedCategory(cat);
+                        setPageIndex(0);
                       }}
                       className={`px-3.5 py-1.5 rounded-lg border font-bold uppercase tracking-wider transition-all ${
                         selectedCategory === cat
@@ -523,24 +527,100 @@ export default function DownloadHub() {
                   ))}
                 </div>
 
-                <div className="text-slate-400 font-mono text-[11px] flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>TRACKING: {filteredProjects.length} / 10 REPOSITORIES // READY</span>
+                {/* View Switcher & Counter */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1 bg-black/50 p-1 rounded-lg border border-white/10">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playHoverBlip(850);
+                        setViewMode('console');
+                      }}
+                      className={`px-2.5 py-1 rounded flex items-center gap-1.5 text-[11px] font-bold ${
+                        viewMode === 'console' ? 'bg-cyan-500 text-black' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <Monitor className="w-3.5 h-3.5" />
+                      <span>DUAL POD CONSOLE</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        cyberAudio.playHoverBlip(850);
+                        setViewMode('grid');
+                      }}
+                      className={`px-2.5 py-1 rounded flex items-center gap-1.5 text-[11px] font-bold ${
+                        viewMode === 'grid' ? 'bg-cyan-500 text-black' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" />
+                      <span>ALL GRID</span>
+                    </button>
+                  </div>
+
+                  <div className="text-slate-400 font-mono text-[11px] hidden sm:flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>TRACKING: {filteredProjects.length} / 10 REPOSITORIES // READY</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* ── 3D HOLOGRAPHIC PODS REGISTRY GRID ── */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 pt-4">
-              {filteredProjects.map((project) => (
-                <HolographicPod
-                  key={project.id}
-                  project={project}
-                  onOpenDetails={(p) => setActiveModalProject(p)}
-                  onAudioBlip={(freq) => cyberAudio.playHoverBlip(freq)}
-                />
-              ))}
-            </div>
+            {/* ── 3D HOLOGRAPHIC PODS REGISTRY DISPLAY ── */}
+            {viewMode === 'console' ? (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {visibleProjects.map((project) => (
+                    <HolographicPod
+                      key={project.id}
+                      project={project}
+                      onOpenDetails={(p) => setActiveModalProject(p)}
+                      onAudioBlip={(freq) => cyberAudio.playHoverBlip(freq)}
+                    />
+                  ))}
+                </div>
+
+                {/* Console Navigation Bar */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-[#070c17] border border-cyan-500/30 font-mono text-xs">
+                  <button
+                    disabled={pageIndex === 0}
+                    onClick={() => {
+                      cyberAudio.playHoverBlip(700);
+                      setPageIndex((p) => Math.max(0, p - 1));
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold border border-white/10 transition-all"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>PREV PODS</span>
+                  </button>
+
+                  <div className="text-cyan-400 font-bold tracking-widest">
+                    CONSOLE TRAY // PAGE {pageIndex + 1} OF {maxPage + 1}
+                  </div>
+
+                  <button
+                    disabled={pageIndex >= maxPage}
+                    onClick={() => {
+                      cyberAudio.playHoverBlip(700);
+                      setPageIndex((p) => Math.min(maxPage, p + 1));
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all"
+                  >
+                    <span>NEXT PODS</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 pt-2">
+                {filteredProjects.map((project) => (
+                  <HolographicPod
+                    key={project.id}
+                    project={project}
+                    onOpenDetails={(p) => setActiveModalProject(p)}
+                    onAudioBlip={(freq) => cyberAudio.playHoverBlip(freq)}
+                  />
+                ))}
+              </div>
+            )}
 
           </div>
 
@@ -626,7 +706,6 @@ export default function DownloadHub() {
 
               {/* Modal Body */}
               <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
-                {/* Description */}
                 <div>
                   <h4 className="font-bold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">
                     ARCHITECTURE OVERVIEW
@@ -636,7 +715,6 @@ export default function DownloadHub() {
                   </p>
                 </div>
 
-                {/* Beginner Quickstart */}
                 <div>
                   <h4 className="font-bold text-emerald-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" />
@@ -653,7 +731,6 @@ export default function DownloadHub() {
                   </div>
                 </div>
 
-                {/* Developer CLI */}
                 <div>
                   <h4 className="font-bold text-purple-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
                     <Terminal className="w-4 h-4" />
@@ -676,7 +753,6 @@ export default function DownloadHub() {
                   </div>
                 </div>
 
-                {/* Key Files */}
                 <div>
                   <h4 className="font-bold text-amber-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
                     <FolderArchive className="w-4 h-4" />
