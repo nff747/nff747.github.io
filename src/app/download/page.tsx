@@ -1,56 +1,31 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import Link from 'next/link';
-import { 
-  Download, 
-  Search, 
-  Copy, 
-  Check, 
-  ExternalLink, 
-  Terminal, 
-  Cpu, 
-  Layers, 
-  Code2, 
-  Box, 
-  Zap, 
-  ShieldCheck, 
-  HelpCircle, 
-  ArrowLeft,
-  X,
-  CheckCircle2,
-  FolderDown,
-  FolderArchive,
-  BookOpen,
-  SlidersHorizontal,
-  Activity,
-  GitBranch,
-  FileCode2,
-  Database
-} from 'lucide-react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cyberAudio } from '@/utils/cyberAudio';
-import { ProjectBlueprint } from '@/components/ArchitectureBlueprints';
+import { Search, Download, FolderArchive, CheckCircle2, Terminal, ExternalLink, X } from 'lucide-react';
+import { TiltCard } from '../../components/TiltCard';
 
-interface ProjectItem {
+// ── TYPES ──
+type ProjectItem = {
   id: string;
   sysId: string;
   name: string;
   tagline: string;
-  category: '3D & WebGPU' | 'AI & LLM' | 'High-Performance Systems' | 'Storage & Compilers';
+  category: string;
   lang: string;
   badge: string;
   metric: string;
   description: string;
   nonCoderGuide: string[];
   cliQuickstart: string;
+  fileTree: string[];
   tags: string[];
   githubUrl: string;
   zipUrl: string;
   accent: string;
-  fileTree: string[];
-}
+};
 
+// ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
     id: 'auto-rig-web',
@@ -274,66 +249,87 @@ const PROJECTS: ProjectItem[] = [
   }
 ];
 
+
 const CATEGORIES = ['All Repositories', '3D & WebGPU', 'AI & LLM', 'High-Performance Systems', 'Storage & Compilers'] as const;
 
-export default function DownloadHubPage() {
+// ── AUDIO HOOK ──
+const useCyberAudio = () => {
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+    };
+    window.addEventListener('click', initAudio, { once: true });
+    window.addEventListener('keydown', initAudio, { once: true });
+    return () => {
+      window.removeEventListener('click', initAudio);
+      window.removeEventListener('keydown', initAudio);
+    };
+  }, []);
+
+  const playHoverBlip = (freq = 800) => {
+    if (!audioCtxRef.current) return;
+    const ctx = audioCtxRef.current;
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.02, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  };
+
+  return { playHoverBlip };
+};
+
+export default function DownloadHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Repositories');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [copiedCLITab, setCopiedCLITab] = useState<'sh' | 'py' | 'git' | null>(null);
-  const [activeCLITab, setActiveCLITab] = useState<'sh' | 'py' | 'git'>('sh');
   const [activeModalProject, setActiveModalProject] = useState<ProjectItem | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Background 3D canvas animation (Preserved as requested)
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const cyberAudio = useCyberAudio();
 
+  // ── BACKGROUND CANVAS (Spatial Particle Field) ──
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let animationFrameId: number;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
 
     const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
     };
     window.addEventListener('resize', handleResize);
+    handleResize();
 
-    const particles = Array.from({ length: 65 }, () => ({
+    const particles = Array.from({ length: 100 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      size: Math.random() * 2 + 1,
-      color: Math.random() > 0.5 ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, ',
-      alpha: Math.random() * 0.4 + 0.15
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      size: Math.random() * 1.5 + 0.5,
+      color: Math.random() > 0.5 ? 'rgba(6, 182, 212, 0.4)' : 'rgba(168, 85, 247, 0.4)'
     }));
 
     const render = () => {
-      ctx.fillStyle = 'rgba(5, 8, 13, 0.25)';
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.025)';
-      ctx.lineWidth = 1;
-      const gridSize = 64;
-      for (let x = 0; x < width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
+      ctx.clearRect(0, 0, width, height);
 
       particles.forEach((p, i) => {
         p.x += p.vx;
@@ -344,9 +340,9 @@ export default function DownloadHubPage() {
         if (p.y < 0) p.y = height;
         if (p.y > height) p.y = 0;
 
-        ctx.fillStyle = `${p.color}${p.alpha})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
@@ -354,586 +350,295 @@ export default function DownloadHubPage() {
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 125) {
-            ctx.strokeStyle = `rgba(0, 240, 255, ${0.12 * (1 - dist / 125)})`;
-            ctx.lineWidth = 0.7;
+
+          if (dist < 120) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       });
 
-      animId = requestAnimationFrame(render);
+      animationFrameId = requestAnimationFrame(render);
     };
-
     render();
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
-  // Keyboard shortcut '/' or 'Ctrl+K' to focus search
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && document.activeElement !== searchInputRef.current) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      } else if (e.key === 'Escape') {
-        setActiveModalProject(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const handleCopyClone = (project: ProjectItem) => {
-    cyberAudio.playHoverBlip(880);
-    const cmd = `git clone ${project.githubUrl}.git`;
-    navigator.clipboard.writeText(cmd);
-    setCopiedId(project.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleCopyCLI = (tab: 'sh' | 'py' | 'git') => {
-    cyberAudio.playHoverBlip(1050);
-    let cmd = '';
-    if (tab === 'sh') {
-      cmd = 'curl -sSL https://nff747.github.io/download.sh | bash';
-    } else if (tab === 'py') {
-      cmd = 'python3 -c "$(curl -fsSL https://nff747.github.io/download.py)"';
-    } else {
-      cmd = 'for repo in auto-rig-web splat-bvh-core aerocache helix-lsm swarm-refactor neural-texture-engine nova-wasm webgpu-vram-pager spatial-glass-ui edge-context-router; do git clone "https://github.com/nff747/$repo.git"; done';
-    }
-    navigator.clipboard.writeText(cmd);
-    setCopiedCLITab(tab);
-    setTimeout(() => setCopiedCLITab(null), 2500);
-  };
-
+  // ── FILTER PROJECTS ──
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((item) => {
-      const matchesCategory = selectedCategory === 'All Repositories' || item.category === selectedCategory;
-      if (!matchesCategory) return false;
-      if (!searchQuery.trim()) return true;
-
-      const q = searchQuery.toLowerCase();
-      return (
-        item.name.toLowerCase().includes(q) ||
-        item.sysId.toLowerCase().includes(q) ||
-        item.tagline.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.lang.toLowerCase().includes(q) ||
-        item.badge.toLowerCase().includes(q) ||
-        item.tags.some(t => t.toLowerCase().includes(q))
-      );
+    return PROJECTS.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesCategory = selectedCategory === 'All Repositories' || p.category === selectedCategory;
+      return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="relative min-h-screen bg-[#05080d] text-slate-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* 3D Particle Background (Preserved) */}
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
+    <div className="relative min-h-screen bg-[#020408] text-slate-300 font-sans selection:bg-cyan-500/30 overflow-x-hidden">
+      {/* Canvas Background */}
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none opacity-60 mix-blend-screen"
+      />
 
-      {/* Cyber Subtle Gradient Vignette */}
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(0,240,255,0.03)_0%,_rgba(5,8,13,0.85)_80%)] z-0" />
+      {/* Radial Glows */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/10 blur-[150px] rounded-full pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28">
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 min-h-screen flex flex-col">
         
-        {/* ── TOP TELEMETRY STATUS BAR ── */}
-        <header className="flex flex-wrap items-center justify-between gap-4 border border-white/[0.08] bg-[#090d16]/80 backdrop-blur-xl rounded-xl px-5 py-3.5 mb-8 shadow-2xl">
-          <Link 
-            href="/" 
-            className="flex items-center gap-3 text-slate-300 hover:text-cyan-300 transition-colors group"
-            onClick={() => cyberAudio.playHoverBlip(600)}
+        {/* Header & Search Engine */}
+        <div className="flex flex-col items-center mb-16 space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-4"
           >
-            <div className="w-8 h-8 rounded-lg bg-cyan-950/50 border border-cyan-500/30 flex items-center justify-center group-hover:border-cyan-400 group-hover:scale-105 transition-all text-cyan-400">
-              <ArrowLeft className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              Download Hub
             </div>
-            <div>
-              <div className="text-[10px] tracking-widest uppercase font-mono text-slate-500">SYSTEMS RETURN</div>
-              <div className="font-mono font-semibold text-xs text-slate-200 flex items-center gap-1.5">
-                PORTFOLIO_CORE.WebGL
+            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-600 tracking-tight drop-shadow-sm">
+              PUBLIC ARCHIVES
+            </h1>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto font-light">
+              High-performance engines, WebGL experiences, and ML architectures. 
+              Open source for commercial and personal use.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="w-full max-w-2xl relative group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative flex items-center bg-[#070b14]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl focus-within:border-cyan-500/50 transition-colors">
+              <div className="pl-4 pr-2">
+                <Search className="w-6 h-6 text-slate-400 group-focus-within:text-cyan-400 transition-colors" />
               </div>
-            </div>
-          </Link>
-
-          <div className="flex flex-wrap items-center gap-3 font-mono text-[11px]">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/[0.06] text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>REGISTRY: 10 / 10 ACTIVE</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 border border-white/[0.06] text-slate-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-              <span>MIT DUAL-USE COMMERCIAL</span>
-            </div>
-            <a 
-              href="https://github.com/nff747" 
-              target="_blank" 
-              rel="noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/40 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 transition-all"
-              onClick={() => cyberAudio.playHoverBlip(750)}
-            >
-              <ExternalLink className="w-3 h-3" />
-              <span>GITHUB</span>
-            </a>
-          </div>
-        </header>
-
-        {/* ── HERO BANNER: ARCHITECTURAL SYSTEMS VAULT ── */}
-        <div className="mb-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-cyan-400 font-mono text-[11px] tracking-widest uppercase mb-3">
-            <Activity className="w-3.5 h-3.5 animate-pulse" />
-            <span>OPEN-SOURCE HARDWARE &amp; COMPILER ARCHITECTURES</span>
-          </div>
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-mono">
-            FLAGSHIP SYSTEMS REGISTRY
-          </h1>
-          <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-2xl font-mono">
-            Zero-dependency, high-throughput client/server libraries, GPU LBVH trees, and LLVM-bypassing binary emitters. Unrestricted open-source distribution under MIT.
-          </p>
-        </div>
-
-        {/* ── UNIVERSAL CLI DOCK: 1-CLICK ECOSYSTEM DOWNLOADER ── */}
-        <div className="mb-10 rounded-xl bg-[#090d16]/90 border border-white/[0.08] shadow-2xl backdrop-blur-xl overflow-hidden">
-          {/* Dock Tab Selector */}
-          <div className="flex flex-wrap items-center justify-between border-b border-white/[0.06] px-4 py-2.5 bg-black/40 gap-2">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-cyan-400" />
-              <span className="font-mono text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Automated Ecosystem Downloader
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {(['sh', 'py', 'git'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    cyberAudio.playHoverBlip(700);
-                    setActiveCLITab(tab);
-                  }}
-                  className={`px-3 py-1 rounded-md font-mono text-[11px] transition-all ${
-                    activeCLITab === tab
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
-                      : 'text-slate-500 hover:text-slate-300 border border-transparent'
-                  }`}
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search by name, tech stack, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => cyberAudio.playHoverBlip(1200)}
+                className="w-full bg-transparent border-none outline-none text-white text-lg placeholder:text-slate-600 font-mono py-3"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="pr-4 text-slate-500 hover:text-white"
                 >
-                  {tab === 'sh' && 'BASH (Linux/macOS)'}
-                  {tab === 'py' && 'PYTHON 3 (Cross-Platform)'}
-                  {tab === 'git' && 'BATCH GIT CLONE'}
+                  <X className="w-5 h-5" />
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Dock Command Line Display */}
-          <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="w-full overflow-x-auto font-mono text-xs bg-black/60 rounded-lg p-3 border border-white/[0.04]">
-              <span className="text-cyan-400 select-none mr-2 font-bold">$</span>
-              <span className="text-slate-200">
-                {activeCLITab === 'sh' && 'curl -sSL https://nff747.github.io/download.sh | bash'}
-                {activeCLITab === 'py' && 'python3 -c "$(curl -fsSL https://nff747.github.io/download.py)"'}
-                {activeCLITab === 'git' && 'for r in auto-rig-web splat-bvh-core aerocache helix-lsm swarm-refactor neural-texture-engine nova-wasm webgpu-vram-pager spatial-glass-ui edge-context-router; do git clone "https://github.com/nff747/$r.git"; done'}
-              </span>
-            </div>
-
-            <button
-              onClick={() => handleCopyCLI(activeCLITab)}
-              className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs transition-all shadow-lg shadow-cyan-500/20 active:scale-95"
-            >
-              {copiedCLITab === activeCLITab ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-black stroke-[3]" />
-                  <span>COPIED TO CLIPBOARD</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>COPY COMMAND</span>
-                </>
               )}
-            </button>
-          </div>
-        </div>
-
-        {/* ── SEARCH & FILTER COMMAND BAR ── */}
-        <div className="mb-8 space-y-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-cyan-400">
-              <Search className="w-4 h-4" />
             </div>
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search registry by identifier (SYS_01), stack (WGSL, Rust, WebGPU), or component... (Press '/' to focus)"
-              className="w-full pl-11 pr-12 py-3 bg-[#080d16]/90 border border-white/[0.08] rounded-xl text-slate-100 placeholder-slate-500 text-xs font-mono focus:outline-none focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/30 transition-all shadow-xl"
-            />
-            {searchQuery && (
+          </motion.div>
+
+          {/* Categories */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-2"
+          >
+            {CATEGORIES.map(cat => (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300"
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  cyberAudio.playHoverBlip(1000);
+                }}
+                className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
+                  selectedCategory === cat 
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    : 'bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 hover:text-white'
+                }`}
               >
-                <X className="w-4 h-4" />
+                {cat}
               </button>
-            )}
-          </div>
-
-          {/* Category Pills */}
-          <div className="flex flex-wrap items-center justify-between gap-3 font-mono">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      cyberAudio.playHoverBlip(650);
-                      setSelectedCategory(cat);
-                    }}
-                    className={`px-3 py-1 rounded-md text-[11px] transition-all ${
-                      isSelected
-                        ? 'bg-cyan-500 text-black font-bold shadow-md'
-                        : 'bg-black/30 border border-white/[0.06] text-slate-400 hover:text-slate-200 hover:border-white/[0.15]'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="text-[11px] text-slate-500">
-              FILTERED: <span className="text-cyan-400 font-bold">{filteredProjects.length}</span> / {PROJECTS.length} REPOSITORIES
-            </div>
-          </div>
+            ))}
+          </motion.div>
         </div>
 
-        {/* ── PROJECT BLUEPRINT CARDS GRID ── */}
+        {/* Spatial 3D Grid */}
         {filteredProjects.length === 0 ? (
-          <div className="text-center py-20 rounded-xl border border-dashed border-white/[0.08] bg-black/20">
-            <HelpCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-sm font-mono font-bold text-slate-300">NO MATCHING REGISTRY REPOSITORIES</h3>
-            <p className="text-slate-600 text-xs mt-1 font-mono">Try adjusting your keyword filter or reset category selection.</p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('All Repositories');
-              }}
-              className="mt-4 px-4 py-1.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-cyan-300 text-xs font-mono hover:bg-white/[0.1] transition-all"
-            >
-              RESET FILTERS
-            </button>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center font-mono text-slate-500">
+              <div className="text-4xl mb-4">ಠ_ಠ</div>
+              <p>NO ARCHIVES MATCH QUERY "{searchQuery}"</p>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredProjects.map((project, idx) => {
-              const isCopied = copiedId === project.id;
-              return (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.04 }}
-                  className="rounded-xl bg-[#090d16]/95 border border-white/[0.08] hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xl group"
-                >
-                  <div>
-                    {/* Card Telemetry Header Bar */}
-                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] bg-black/40 font-mono text-[11px]">
-                      <div className="flex items-center gap-2">
-                        <span className="text-cyan-400 font-bold">{project.sysId}</span>
-                        <span className="text-slate-600">//</span>
-                        <span className="text-slate-300 font-semibold">{project.name}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 text-[10px]">
-                          {project.lang}
-                        </span>
-                        <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          VERIFIED
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Vector Architecture Blueprint Viewer (Zero AI Raster Junk) */}
-                    <div className="relative w-full aspect-[21/9] border-b border-white/[0.06] overflow-hidden bg-[#050811]">
-                      <ProjectBlueprint id={project.id} accent={project.accent} />
-
-                      {/* Corner Blueprint Badge */}
-                      <div className="absolute bottom-2 left-3 pointer-events-none">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/80 border border-white/[0.1] text-[10px] font-mono text-cyan-300 backdrop-blur-sm">
-                          <Zap className="w-3 h-3 text-cyan-400" />
-                          <span>{project.metric}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card Information Body */}
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <h2 className="text-base font-bold font-mono text-white group-hover:text-cyan-300 transition-colors">
-                            {project.tagline}
-                          </h2>
-                        </div>
-                        <button
-                          onClick={() => setActiveModalProject(project)}
-                          className="shrink-0 px-2.5 py-1 rounded bg-white/[0.04] hover:bg-cyan-950/60 border border-white/[0.08] hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-[11px] font-mono transition-all flex items-center gap-1"
-                          title="Inspect Architecture & Quickstart"
-                        >
-                          <BookOpen className="w-3 h-3" />
-                          <span>SPECS</span>
-                        </button>
-                      </div>
-
-                      <p className="text-slate-400 text-xs leading-relaxed mb-4 font-mono">
-                        {project.description}
-                      </p>
-
-                      {/* Tech Stack Pills */}
-                      <div className="flex flex-wrap gap-1.5 mb-2 font-mono">
-                        {project.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-0.5 rounded bg-white/[0.02] border border-white/[0.05] text-[10px] text-slate-400"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Action Toolbar */}
-                  <div className="px-5 py-3 border-t border-white/[0.06] bg-black/40 flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
-                    {/* Primary: Direct ZIP Download */}
-                    <a
-                      href={project.zipUrl}
-                      download
-                      onClick={() => cyberAudio.playHoverBlip(1000)}
-                      className="flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold transition-all shadow-md shadow-cyan-500/10 active:scale-[0.98]"
-                    >
-                      <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>DOWNLOAD .ZIP</span>
-                    </a>
-
-                    {/* Secondary: Copy Git Clone */}
-                    <button
-                      onClick={() => handleCopyClone(project)}
-                      className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-all"
-                      title="Copy git clone URL"
-                    >
-                      {isCopied ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="text-emerald-400">COPIED</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-slate-400" />
-                          <span>CLONE</span>
-                        </>
-                      )}
-                    </button>
-
-                    {/* Tertiary: View GitHub Repo */}
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={() => cyberAudio.playHoverBlip(700)}
-                      className="flex items-center justify-center p-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-400 hover:text-slate-200 transition-all"
-                      title="Open GitHub Repository"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </motion.div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-[2000px]">
+            {filteredProjects.map((project, idx) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, z: -100, rotateX: 10 }}
+                animate={{ opacity: 1, z: 0, rotateX: 0 }}
+                transition={{ delay: idx * 0.05, type: 'spring', stiffness: 100 }}
+              >
+                <TiltCard 
+                  project={project} 
+                  onClick={() => {
+                    cyberAudio.playHoverBlip(600);
+                    setActiveModalProject(project);
+                  }} 
+                />
+              </motion.div>
+            ))}
           </div>
         )}
 
-        {/* ── NON-CODER / QUICKSTART CONSOLE SECTION ── */}
-        <div className="mt-16 rounded-xl bg-[#090d16]/90 border border-white/[0.08] p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
-          <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs uppercase tracking-wider mb-2">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>DIRECT LOCAL DEPLOYMENT WORKFLOW</span>
-          </div>
-          <h2 className="text-lg sm:text-xl font-bold font-mono text-white mb-6">
-            HOW TO RUN THESE REPOSITORIES IN 3 STEPS
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
-            <div className="p-5 rounded-lg bg-black/40 border border-white/[0.05]">
-              <div className="w-7 h-7 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 flex items-center justify-center font-bold text-xs mb-3">
-                01
-              </div>
-              <h3 className="font-bold text-slate-200 text-sm mb-1">DOWNLOAD ARCHIVE</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Click any cyan <span className="text-cyan-300">Download .ZIP</span> button above. Your browser fetches the complete self-contained source bundle immediately without credentials or registration.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-lg bg-black/40 border border-white/[0.05]">
-              <div className="w-7 h-7 rounded bg-purple-950/80 border border-purple-500/40 text-purple-400 flex items-center justify-center font-bold text-xs mb-3">
-                02
-              </div>
-              <h3 className="font-bold text-slate-200 text-sm mb-1">UNPACK ARCHIVE</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Right-click the downloaded `.zip` file on your OS and choose <span className="text-purple-300">Extract All</span> (Windows) or double-click to decompress on macOS / Linux.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-lg bg-black/40 border border-white/[0.05]">
-              <div className="w-7 h-7 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs mb-3">
-                03
-              </div>
-              <h3 className="font-bold text-slate-200 text-sm mb-1">LAUNCH DEMO</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Web projects feature a standalone <span className="text-emerald-300">demo/index.html</span> you can double-click to run in any browser. Backend projects include full test suites runnable with a single command.
-              </p>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      {/* ── SYSTEM SPECIFICATION MODAL DRAWER ── */}
+      {/* ── HOLOGRAPHIC MODAL ── */}
       <AnimatePresence>
         {activeModalProject && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
             onClick={() => setActiveModalProject(null)}
           >
             <motion.div
-              initial={{ scale: 0.96, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
+              initial={{ scale: 0.9, y: 20, rotateX: 5, opacity: 0 }}
+              animate={{ scale: 1, y: 0, rotateX: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: -20, rotateX: -5, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl bg-[#090d16] border border-cyan-500/40 rounded-xl shadow-2xl overflow-hidden font-mono"
+              className="relative w-full max-w-4xl bg-[#03060c]/90 border border-cyan-500/30 rounded-2xl shadow-[0_0_100px_rgba(6,182,212,0.15)] overflow-hidden font-mono"
             >
+              {/* Modal Banner Backdrop */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-64 bg-cover bg-center opacity-30 mask-image-gradient"
+                style={{
+                  backgroundImage: `url(/banners/${activeModalProject.id}.jpg)`,
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
+                }}
+              />
+
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-black/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs">
+              <div className="relative flex items-center justify-between px-8 py-6 z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                     {activeModalProject.sysId}
                   </div>
                   <div>
-                    <h3 className="font-bold text-base text-white">{activeModalProject.name}</h3>
-                    <div className="text-[11px] text-slate-500">{activeModalProject.badge} // {activeModalProject.lang}</div>
+                    <h3 className="font-bold text-2xl text-white tracking-tight">{activeModalProject.name}</h3>
+                    <div className="text-cyan-300/80 text-sm">{activeModalProject.tagline}</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveModalProject(null)}
-                  className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/10"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
-                {/* Blueprint View */}
-                <div className="rounded-lg overflow-hidden border border-white/[0.08] aspect-[21/9] bg-[#050811]">
-                  <ProjectBlueprint id={activeModalProject.id} accent={activeModalProject.accent} />
-                </div>
-
-                {/* Technical Overview */}
-                <div>
-                  <h4 className="font-bold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">
-                    ARCHITECTURE OVERVIEW
-                  </h4>
-                  <p className="text-slate-300 leading-relaxed">
-                    {activeModalProject.description}
-                  </p>
-                </div>
-
-                {/* Directory Structure */}
-                <div>
-                  <h4 className="font-bold text-slate-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
-                    <FolderArchive className="w-3.5 h-3.5 text-cyan-400" />
-                    KEY DIRECTORY ENTRYPOINTS
-                  </h4>
-                  <div className="bg-black/60 rounded-lg p-3 border border-white/[0.06] space-y-1 text-slate-300">
-                    {activeModalProject.fileTree.map((f) => (
-                      <div key={f} className="flex items-center gap-2">
-                        <span className="text-slate-600">├──</span>
-                        <span className="text-cyan-300 font-mono">{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Non-Coder Step-by-Step */}
-                <div>
-                  <h4 className="font-bold text-emerald-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    QUICKSTART GUIDE (BEGINNER FRIENDLY)
-                  </h4>
-                  <ol className="list-decimal list-inside space-y-2 text-slate-300 pl-1">
-                    {activeModalProject.nonCoderGuide.map((step, idx) => (
-                      <li key={idx} className="leading-relaxed">
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                {/* Terminal Quickstart */}
-                <div>
-                  <h4 className="font-bold text-purple-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
-                    <Terminal className="w-3.5 h-3.5" />
-                    DEVELOPER CLI VERIFICATION
-                  </h4>
-                  <div className="bg-black/60 rounded-lg p-3 border border-white/[0.06] flex items-center justify-between gap-3">
-                    <div className="text-slate-200 truncate">
-                      <span className="text-purple-400 select-none mr-2 font-bold">$</span>
-                      {activeModalProject.cliQuickstart}
+              <div className="relative p-8 max-h-[70vh] overflow-y-auto space-y-10 z-10 scrollbar-thin scrollbar-thumb-cyan-500/20 scrollbar-track-transparent">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left Column: Non-Coder Guide */}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        Quickstart (Beginners)
+                      </h4>
+                      <ol className="relative border-l border-white/10 ml-3 space-y-6">
+                        {activeModalProject.nonCoderGuide.map((step, idx) => (
+                          <li key={idx} className="pl-6">
+                            <span className="absolute w-6 h-6 bg-[#03060c] border border-emerald-500/30 rounded-full -left-3 flex items-center justify-center text-[10px] text-emerald-400 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                              {idx + 1}
+                            </span>
+                            <p className="text-slate-300 text-sm leading-relaxed pt-0.5">{step}</p>
+                          </li>
+                        ))}
+                      </ol>
                     </div>
-                    <button
-                      onClick={() => {
-                        cyberAudio.playHoverBlip(900);
-                        navigator.clipboard.writeText(activeModalProject.cliQuickstart);
-                      }}
-                      className="px-2.5 py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 text-[10px] shrink-0"
+
+                    <a
+                      href={activeModalProject.zipUrl}
+                      download
+                      onClick={() => cyberAudio.playHoverBlip(1000)}
+                      className="group flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-bold text-sm transition-all shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] active:scale-[0.98]"
                     >
-                      COPY
-                    </button>
+                      <Download className="w-5 h-5 stroke-[2.5]" />
+                      <span>DOWNLOAD .ZIP ARCHIVE</span>
+                    </a>
+                  </div>
+
+                  {/* Right Column: Dev/Tech Specs */}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
+                        <Terminal className="w-5 h-5 text-purple-400" />
+                        Developer Tools
+                      </h4>
+                      <div className="bg-[#000000] rounded-xl p-4 border border-white/10 shadow-inner">
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                          <span className="text-[10px] text-slate-500 uppercase tracking-widest">CLI Verification</span>
+                          <button
+                            onClick={() => {
+                              cyberAudio.playHoverBlip(900);
+                              navigator.clipboard.writeText(activeModalProject.cliQuickstart);
+                            }}
+                            className="px-2 py-1 rounded bg-white/5 hover:bg-white/15 text-slate-300 text-[10px] transition-colors"
+                          >
+                            COPY
+                          </button>
+                        </div>
+                        <div className="text-purple-300 font-mono text-sm overflow-x-auto whitespace-nowrap">
+                          <span className="text-purple-500 select-none mr-2">$</span>
+                          {activeModalProject.cliQuickstart}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
+                        <FolderArchive className="w-5 h-5 text-amber-400" />
+                        Architecture
+                      </h4>
+                      <div className="bg-[#000000]/60 rounded-xl p-4 border border-white/10 space-y-2">
+                        {activeModalProject.fileTree.map((f) => (
+                          <div key={f} className="flex items-center gap-2 text-sm">
+                            <span className="text-slate-600">├──</span>
+                            <span className="text-amber-300 font-mono">{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <a
+                      href={activeModalProject.githubUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      VIEW ON GITHUB
+                    </a>
                   </div>
                 </div>
-              </div>
-
-              {/* Modal Footer Actions */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-white/[0.08] bg-black/50">
-                <a
-                  href={activeModalProject.githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 text-xs transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>VIEW ON GITHUB</span>
-                </a>
-
-                <a
-                  href={activeModalProject.zipUrl}
-                  download
-                  onClick={() => cyberAudio.playHoverBlip(1000)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shadow-md active:scale-95"
-                >
-                  <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>DOWNLOAD ARCHIVE (.ZIP)</span>
-                </a>
               </div>
             </motion.div>
           </motion.div>
