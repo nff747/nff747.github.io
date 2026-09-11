@@ -2,8 +2,12 @@
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Download, FolderArchive, CheckCircle2, Terminal, ExternalLink, X } from 'lucide-react';
-import { TiltCard } from '../../components/TiltCard';
+import { 
+  Search, Download, FolderArchive, CheckCircle2, Terminal, 
+  ExternalLink, X, ShieldCheck, Cpu, HardDrive, 
+  Share2, Lock, Copy, Check, Sparkles, Box
+} from 'lucide-react';
+import { HolographicPod } from '../../components/HolographicPod';
 
 // ── TYPES ──
 type ProjectItem = {
@@ -36,18 +40,18 @@ const PROJECTS: ProjectItem[] = [
     lang: 'TypeScript',
     badge: 'Three.js / ONNX',
     metric: '500ms Rigging // 60 FPS CCDIK',
-    description: 'Autonomous client-side skeletal rigging engine. Ingests raw .obj/.gltf meshes, estimates 19-joint Vitruvian anatomical proportions, and computes biharmonic skinning weights inside an isolated Web Worker via SharedArrayBuffer.',
+    description: 'Autonomous zero-click 3D humanoid skeleton generation, ONNX landmark prediction, and bi-harmonic weight painting inside a zero-copy Web Worker.',
     nonCoderGuide: [
-      'Download and extract the .zip file to any folder.',
-      'Navigate to `examples/basic-usage.html` and double-click to open it in Chrome, Brave, or Edge.',
-      'Drag and drop any 3D humanoid character mesh (.obj or .gltf) to watch it auto-rig and animate in real time.'
+      'Extract the zip archive to any folder on your computer.',
+      'Open the `demo/index.html` file in any modern web browser (Chrome, Edge, Safari, Firefox).',
+      'Drag and drop any standard 3D humanoid mesh (.obj or .gltf) to instantly rig and animate.'
     ],
-    cliQuickstart: 'npm install && npm test',
-    fileTree: ['src/core/AutoRigger.ts', 'src/worker/rigWorker.ts', 'src/math/CCDIKSolver.ts', 'examples/basic-usage.html'],
-    tags: ['threejs', 'webgl', 'webgpu', 'onnx', 'animation', 'ik-solver'],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/AutoRigger.ts', 'src/worker/rigWorker.ts', 'src/solvers/CCDIKSolver.ts', 'demo/index.html'],
+    tags: ['threejs', 'onnx', 'webgl', 'web-worker', 'ik-solver', 'auto-rigging', 'animation'],
     githubUrl: 'https://github.com/nff747/auto-rig-web',
     zipUrl: 'https://github.com/nff747/auto-rig-web/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
+    accent: '#06b6d4'
   },
   {
     id: 'splat-bvh-core',
@@ -55,32 +59,32 @@ const PROJECTS: ProjectItem[] = [
     name: 'splat-bvh-core',
     tagline: 'Real-Time Karras 2012 GPU LBVH for 3D Gaussian Splats',
     category: '3D & WebGPU',
-    lang: 'WebGPU / WGSL',
+    lang: 'WGSL / TS',
     badge: 'WebGPU Compute',
-    metric: 'Sub-ms Rebuilds // Zero CPU Readbacks',
-    description: 'GPU-resident Linear Bounding Volume Hierarchy builder in WebGPU WGSL. Employs parallel 30-bit Morton coding, in-VRAM bitonic radix sort, and Karras split search for raycasting and frustum culling without CPU memory roundtrips.',
+    metric: '1.2M+ Splat Traversal // 60 FPS',
+    description: 'Hardware-accelerated Linear Bounding Volume Hierarchy (LBVH) compute pipeline in WGSL for 3D Gaussian Splatting with 64-bit Morton codes.',
     nonCoderGuide: [
-      'Extract the .zip package to your local drive.',
-      'Open `demo/index.html` in Chrome or Edge with WebGPU enabled.',
-      'Interact with the 3D point cloud and observe real-time spatial bounding boxes adapting at 60 FPS.'
+      'Download and decompress the archive folder.',
+      'Launch `demo/index.html` inside a WebGPU-enabled browser (Google Chrome, Microsoft Edge, Brave).',
+      'Interact with the 3D Gaussian Splat scene with ray-casted spatial selection.'
     ],
     cliQuickstart: 'npm install && npx vitest run',
-    fileTree: ['src/core/BVHBuilder.ts', 'src/shaders/bvhBuild.wgsl.ts', 'src/math/morton.ts', 'demo/index.html'],
-    tags: ['webgpu', 'wgsl', '3dgs', 'gaussian-splats', 'bvh', 'bitonic-sort'],
+    fileTree: ['src/core/BVHBuilder.ts', 'src/shaders/bvhBuild.wgsl.ts', 'src/shaders/radixSort.wgsl.ts', 'demo/index.html'],
+    tags: ['webgpu', 'wgsl', 'gaussian-splatting', 'bvh', 'compute-shader', 'radix-sort'],
     githubUrl: 'https://github.com/nff747/splat-bvh-core',
     zipUrl: 'https://github.com/nff747/splat-bvh-core/archive/refs/heads/main.zip',
-    accent: '#38bdf8'
+    accent: '#ec4899'
   },
   {
     id: 'aerocache',
     sysId: 'SYS_03',
     name: 'aerocache',
-    tagline: '13M ops/sec Zero-GC Off-Heap In-Memory Cache in Java',
+    tagline: '13M+ ops/sec Zero-GC Off-Heap In-Memory Cache in Java 21',
     category: 'High-Performance Systems',
     lang: 'Java 21',
-    badge: 'Off-Heap Unsafe',
-    metric: '13.4M ops/sec // 0.10µs P99 // 0.0ms GC',
-    description: 'Ultra-low-latency Redis RESP2 compatible cache server running on a single-threaded Java NIO event loop. Allocates raw off-heap memory slabs via sun.misc.Unsafe with 13 segregated free lists and lock-striped concurrency.',
+    badge: 'Java Foreign Memory',
+    metric: '13.4M Ops/sec // 0.10µs P99 Latency',
+    description: 'Zero-GC, off-heap in-memory key-value cache built on Java 21 Panama Foreign Function & Memory API with RESP protocol wire server.',
     nonCoderGuide: [
       'Extract the downloaded folder.',
       'Ensure Java 21+ and Maven are installed on your machine.',
@@ -102,7 +106,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'Rust',
     badge: 'Rust 1.80+ / EBR',
     metric: '1.4M+ Write IOPS // Consistent Hashing',
-    description: 'Kernel-grade distributed LSM key-value database engine. Features a lock-free SkipList MemTable with Epoch-Based Reclamation (EBR), group-commit WAL with CRC-32 verification, and multi-level compaction cascading across L0-L6.',
+    description: 'Kernel-grade distributed LSM key-value database engine. Features a lock-free SkipList MemTable with Epoch-Based Reclamation (EBR) and multi-level compaction.',
     nonCoderGuide: [
       'Unzip the source archive.',
       'Open a terminal inside the directory and run `cargo test`.',
@@ -124,7 +128,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'Python 3.12',
     badge: 'Actor Concurrency',
     metric: 'AST Security Gate // POSIX Sandbox',
-    description: 'Asynchronous multi-agent orchestrator inspired by Erlang/Akka. Manager, Worker, and Critic actors collaborate in an iterative test-eval loop to locate syntax errors, synthesize AST patches, and self-heal Python codebases safely.',
+    description: 'Asynchronous multi-agent orchestrator. Manager, Worker, and Critic actors collaborate in an iterative test-eval loop to repair and verify codebases.',
     nonCoderGuide: [
       'Extract the project files.',
       'Install with `pip install -e .` in your Python 3.11+ environment.',
@@ -146,7 +150,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'WebGPU / TS',
     badge: 'Compute Super-Res',
     metric: '4x Dynamic Upscale // 16ms Fallback',
-    description: 'Real-time neural and analytical texture upscaler for 3D web runtimes. Uses quantized tensor weights with Laplacian edge enhancement and hardware capability profiling to fallback gracefully on low-power mobile devices.',
+    description: 'Real-time neural texture upscaler for 3D web runtimes. Uses quantized tensor weights with Laplacian edge enhancement and hardware capability profiling.',
     nonCoderGuide: [
       'Extract the zip archive.',
       'Open `demo/index.html` in your browser.',
@@ -168,7 +172,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'Rust',
     badge: 'Direct WASM Binary',
     metric: '<250µs Compile Time // Zero LLVM',
-    description: 'Statically typed systems programming language bypassing LLVM entirely. Employs a single-pass recursive descent parser, Pratt expression climber, and direct Section 1-11 WASM binary byte emitter with linear memory intrinsics.',
+    description: 'Statically typed systems programming language bypassing LLVM entirely with direct Section 1-11 WASM binary byte emitter.',
     nonCoderGuide: [
       'Extract the folder and open a terminal inside.',
       'Run `cargo run -- examples/collatz.nova`.',
@@ -190,7 +194,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'WebGPU / TS',
     badge: 'VRAM Streaming',
     metric: 'Zero-Copy Ring Buffers // OOM Guard',
-    description: 'Memory paging system preventing WebGPU out-of-memory browser crashes when loading multi-gigabyte LLMs or massive textures. Employs asynchronous circular staging buffers, queue.writeBuffer streaming, and LRU page eviction.',
+    description: 'Memory paging system preventing WebGPU out-of-memory crashes when loading multi-gigabyte LLMs or massive textures in browser.',
     nonCoderGuide: [
       'Extract the zip archive to your machine.',
       'Open `demo/index.html` in Chrome or Brave.',
@@ -212,7 +216,7 @@ const PROJECTS: ProjectItem[] = [
     lang: 'WebGL2 / React',
     badge: 'Phantom DOM a11y',
     metric: 'Physical Refraction // 60 FPS',
-    description: 'Hardware-accelerated spatial glassmorphism UI rendered in WebGL2 fragment shaders. Simulates optical refraction, chromatic dispersion, sensor-driven gyro parallax, and synchronizes with an invisible Phantom DOM for full screen-reader a11y.',
+    description: 'Hardware-accelerated spatial glassmorphism UI rendered in WebGL2 shaders with optical refraction, chromatic dispersion, and Phantom DOM a11y.',
     nonCoderGuide: [
       'Unzip the package.',
       'Open `demo/index.html` in any modern web browser.',
@@ -229,16 +233,16 @@ const PROJECTS: ProjectItem[] = [
     id: 'edge-context-router',
     sysId: 'SYS_10',
     name: 'edge-context-router',
-    tagline: 'Quantized Edge Semantic Context Router for LLMs',
+    tagline: 'Quantized Vector Semantic Router for Low-Cost LLM Edge Inference',
     category: 'AI & LLM',
-    lang: 'TypeScript',
-    badge: 'Local Embeddings',
-    metric: '83% API Cost Savings // Sub-5ms Routing',
-    description: 'Hybrid edge-cloud context gateway. Evaluates user query intent locally using quantized browser embeddings (@xenova/transformers) to resolve cached responses immediately or route complex questions upstream to cloud LLMs.',
+    lang: 'TypeScript / Node',
+    badge: 'ONNX Embeddings',
+    metric: '72% Cloud LLM Token Cost Reduction',
+    description: 'Smart context router using quantized local embeddings to route simple user prompts to cheap edge models while cascading complex prompts to cloud LLMs.',
     nonCoderGuide: [
-      'Extract the project folder.',
-      'Open terminal and run `npm install && npm start`.',
-      'Enter test questions to see the local embedding engine calculate cosine similarity scores and route requests.'
+      'Extract the zip archive.',
+      'Install dependencies with `npm install`.',
+      'Run `npm start` to see live semantic routing decisions categorized in real time.'
     ],
     cliQuickstart: 'npm install && npx vitest run',
     fileTree: ['src/core/EdgeRouter.ts', 'src/models/EmbeddingPipeline.ts', 'src/cache/VectorCache.ts', 'examples/cli.ts'],
@@ -249,10 +253,9 @@ const PROJECTS: ProjectItem[] = [
   }
 ];
 
+const CATEGORIES = ['All Repositories', '3D & WebGPU', 'AI & LLM', 'High Performance', 'Storage & Compilers'] as const;
 
-const CATEGORIES = ['All Repositories', '3D & WebGPU', 'AI & LLM', 'High-Performance Systems', 'Storage & Compilers'] as const;
-
-// ── AUDIO HOOK ──
+// ── AUDIO SYSTEM ──
 const useCyberAudio = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -278,13 +281,13 @@ const useCyberAudio = () => {
     const gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.02, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.015, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.05);
+    osc.stop(ctx.currentTime + 0.04);
   };
 
   return { playHoverBlip };
@@ -294,356 +297,429 @@ export default function DownloadHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Repositories');
   const [activeModalProject, setActiveModalProject] = useState<ProjectItem | null>(null);
-  
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'bash' | 'python' | 'batch'>('bash');
+  const [copied, setCopied] = useState(false);
+
   const cyberAudio = useCyberAudio();
 
-  // ── BACKGROUND CANVAS (Spatial Particle Field) ──
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const commands = {
+    bash: 'curl -sSL https://nff747.github.io/download.sh | bash',
+    python: 'curl -sSL https://nff747.github.io/download.py | python3',
+    batch: 'powershell -Command "irm https://nff747.github.io/download.ps1 | iex"'
+  };
 
-    let animationFrameId: number;
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-
-    const handleResize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    const particles = Array.from({ length: 100 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      size: Math.random() * 1.5 + 0.5,
-      color: Math.random() > 0.5 ? 'rgba(6, 182, 212, 0.4)' : 'rgba(168, 85, 247, 0.4)'
-    }));
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      });
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-    render();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+  const handleCopy = () => {
+    cyberAudio.playHoverBlip(1100);
+    navigator.clipboard.writeText(commands[activeTab]);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // ── FILTER PROJECTS ──
   const filteredProjects = useMemo(() => {
     return PROJECTS.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesCategory = selectedCategory === 'All Repositories' || p.category === selectedCategory;
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = p.name.toLowerCase().includes(q) || 
+                            p.description.toLowerCase().includes(q) ||
+                            p.tagline.toLowerCase().includes(q) ||
+                            p.tags.some(t => t.toLowerCase().includes(q));
+      
+      let matchesCategory = true;
+      if (selectedCategory === '3D & WebGPU') matchesCategory = p.category === '3D & WebGPU';
+      else if (selectedCategory === 'AI & LLM') matchesCategory = p.category === 'AI & LLM';
+      else if (selectedCategory === 'High Performance') matchesCategory = p.category === 'High-Performance Systems';
+      else if (selectedCategory === 'Storage & Compilers') matchesCategory = p.category === 'Storage & Compilers';
+
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="relative min-h-screen bg-[#020408] text-slate-300 font-sans selection:bg-cyan-500/30 overflow-x-hidden">
-      {/* Canvas Background */}
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 pointer-events-none opacity-60 mix-blend-screen"
-      />
-
-      {/* Radial Glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/10 blur-[150px] rounded-full pointer-events-none" />
-
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 min-h-screen flex flex-col">
+    <div className="min-h-screen bg-[#06090e] text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden p-2 md:p-6 lg:p-8 flex flex-col items-center justify-center">
+      
+      {/* ── CYBERDECK OUTER CHASSIS FRAME ── */}
+      <div className="relative w-full max-w-[1580px] rounded-3xl bg-[#0b1019] border-2 border-slate-700/60 shadow-[0_0_120px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col">
         
-        {/* Header & Search Engine */}
-        <div className="flex flex-col items-center mb-16 space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-4"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+        {/* TOP INDUSTRIAL HINGE & COOLING CYLINDER BAR */}
+        <div className="h-10 bg-gradient-to-b from-[#1c2434] to-[#0d131f] border-b-2 border-slate-700/80 px-8 flex items-center justify-between select-none">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-600/80 border border-red-400/50 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+              <span className="w-3 h-3 rounded-full bg-amber-600/80 border border-amber-400/50 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+              <span className="w-3 h-3 rounded-full bg-emerald-600/80 border border-emerald-400/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            </div>
+            {/* Pneumatic Cylinder Mock */}
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="w-16 h-2 rounded-full bg-slate-800 border border-slate-600/60 shadow-inner" />
+              <div className="w-6 h-3 rounded bg-slate-700 border border-slate-500/80" />
+            </div>
+            <span className="font-mono text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+              MAINFRAME TERMINAL // CHASSIS-RIG 2400-X
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 font-mono text-[11px]">
+            <span className="hidden md:inline text-slate-500">HOST: GITHUB PAGES CDN</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Download Hub
+              PORT: 443 HTTPS
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-600 tracking-tight drop-shadow-sm">
-              PUBLIC ARCHIVES
-            </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto font-light">
-              High-performance engines, WebGL experiences, and ML architectures. 
-              Open source for commercial and personal use.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="w-full max-w-2xl relative group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative flex items-center bg-[#070b14]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl focus-within:border-cyan-500/50 transition-colors">
-              <div className="pl-4 pr-2">
-                <Search className="w-6 h-6 text-slate-400 group-focus-within:text-cyan-400 transition-colors" />
-              </div>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search by name, tech stack, or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => cyberAudio.playHoverBlip(1200)}
-                className="w-full bg-transparent border-none outline-none text-white text-lg placeholder:text-slate-600 font-mono py-3"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="pr-4 text-slate-500 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Categories */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-2"
-          >
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  cyberAudio.playHoverBlip(1000);
-                }}
-                className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-                  selectedCategory === cat 
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
-                    : 'bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </motion.div>
+          </div>
         </div>
 
-        {/* Spatial 3D Grid */}
-        {filteredProjects.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center font-mono text-slate-500">
-              <div className="text-4xl mb-4">ಠ_ಠ</div>
-              <p>NO ARCHIVES MATCH QUERY "{searchQuery}"</p>
+        {/* MAIN TERMINAL SCREEN ENCLOSURE */}
+        <div className="relative flex-1 bg-[#02050b] flex flex-col">
+          
+          {/* LEFT & RIGHT SERVER BLADE RACKS WITH GLOWING CABLE BUNDLES (DESKTOP) */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 hidden 2xl:flex flex-col items-center justify-between py-8 bg-[#080d17] border-r-2 border-slate-800/80 z-20 select-none">
+            <div className="space-y-4">
+              <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-ping" />
+              <div className="w-1.5 h-32 rounded bg-gradient-to-b from-cyan-500 via-emerald-500 to-yellow-500 opacity-80" />
+              <div className="w-1.5 h-32 rounded bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500 opacity-80" />
+            </div>
+            <div className="rotate-90 font-mono text-[9px] text-slate-500 tracking-widest">
+              BLADE_RACK_01 // 64Gb/s
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-[2000px]">
-            {filteredProjects.map((project, idx) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, z: -100, rotateX: 10 }}
-                animate={{ opacity: 1, z: 0, rotateX: 0 }}
-                transition={{ delay: idx * 0.05, type: 'spring', stiffness: 100 }}
-              >
-                <TiltCard 
-                  project={project} 
-                  onClick={() => {
-                    cyberAudio.playHoverBlip(600);
-                    setActiveModalProject(project);
-                  }} 
-                />
-              </motion.div>
-            ))}
+
+          <div className="absolute right-0 top-0 bottom-0 w-12 hidden 2xl:flex flex-col items-center justify-between py-8 bg-[#080d17] border-l-2 border-slate-800/80 z-20 select-none">
+            <div className="space-y-4">
+              <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_#06b6d4] animate-pulse" />
+              <div className="w-1.5 h-32 rounded bg-gradient-to-b from-amber-500 via-orange-500 to-red-500 opacity-80" />
+              <div className="w-1.5 h-32 rounded bg-gradient-to-b from-cyan-400 via-blue-500 to-indigo-500 opacity-80" />
+            </div>
+            <div className="-rotate-90 font-mono text-[9px] text-slate-500 tracking-widest">
+              BLADE_RACK_02 // 64Gb/s
+            </div>
           </div>
-        )}
+
+          {/* SCREEN INNER CONTENT */}
+          <div className="p-4 sm:p-8 lg:p-12 2xl:px-24 flex-1 flex flex-col space-y-8">
+            
+            {/* ── TOP BROWSER & HUD STATUS BAR ── */}
+            <div className="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl bg-[#090f1d] border border-cyan-500/20 shadow-md font-mono text-xs">
+              
+              {/* Address Search Bar */}
+              <div className="flex-1 min-w-[280px] max-w-xl flex items-center gap-2.5 px-4 py-2 rounded-lg bg-[#04070f] border border-white/10 text-slate-300">
+                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-white font-bold tracking-wide">nff747.github.io/download/</span>
+              </div>
+
+              {/* Status Badges */}
+              <div className="flex items-center flex-wrap gap-2.5">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>REPOSITORY: 10 / 10 ACTIVE</span>
+                </div>
+
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300 font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>DUAL USE LICENSE (MIT)</span>
+                </div>
+
+                <a
+                  href="https://github.com/nff747"
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => cyberAudio.playHoverBlip(1000)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold transition-all"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>GitHub</span>
+                </a>
+              </div>
+            </div>
+
+            {/* ── HERO TITLE BANNER ── */}
+            <div className="space-y-3">
+              <div className="font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                OBJECT ARTIFACT GITHUB COMPILER ARCHITECTURES
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400 tracking-tight drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                FLAGSHIP SYSTEMS REGISTRY
+              </h1>
+              <p className="text-slate-400 text-sm sm:text-base max-w-4xl font-light leading-relaxed">
+                Zero-dependency, high-throughput client/server libraries, GPU LBVH trees, and LLVM-bypassing binary emitters. Unrestricted open-source distribution under MIT.
+              </p>
+            </div>
+
+            {/* ── AUTOMATED COMPILATION DOWNLOADER DOCK ── */}
+            <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-b from-[#091122] to-[#040813] border border-cyan-500/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-4 font-mono">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                  <Terminal className="w-4 h-4 text-cyan-400" />
+                  <span>AUTOMATED COMPILATION DOWNLD LOADER</span>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex items-center gap-1.5 p-1 rounded-lg bg-black/60 border border-white/10 text-xs">
+                  {(['bash', 'python', 'batch'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        cyberAudio.playHoverBlip(950);
+                        setActiveTab(tab);
+                      }}
+                      className={`px-3 py-1 rounded font-bold uppercase transition-all ${
+                        activeTab === tab
+                          ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.4)]'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {tab === 'bash' ? 'bash (curl | raw)' : tab === 'python' ? 'Python 3 (Cross-Platform)' : 'Batch / Windows'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Command Box */}
+              <div className="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/80 border border-cyan-500/40 font-mono">
+                <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm text-cyan-300">
+                  <span className="text-purple-400 font-bold select-none">$</span>
+                  <span className="selection:bg-cyan-500 selection:text-black">{commands[activeTab]}</span>
+                </div>
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-2 px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs font-mono transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 shrink-0"
+                >
+                  {copied ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4 stroke-[2.5]" />}
+                  <span>{copied ? 'COPIED!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── SEARCH & CATEGORY FILTER REGISTRY BAR ── */}
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search registry by identifier, tech stack (Rust, WGSL, WebGPU, High-Performance), or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => cyberAudio.playHoverBlip(1200)}
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-[#080e1b] border border-cyan-500/30 text-white font-mono text-sm placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all shadow-inner"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+                <div className="flex flex-wrap items-center gap-2">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        cyberAudio.playHoverBlip(900);
+                        setSelectedCategory(cat);
+                      }}
+                      className={`px-3.5 py-1.5 rounded-lg border font-bold uppercase tracking-wider transition-all ${
+                        selectedCategory === cat
+                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                          : 'bg-white/[0.03] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="text-slate-400 font-mono text-[11px] flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>TRACKING: {filteredProjects.length} / 10 REPOSITORIES // READY</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── 3D HOLOGRAPHIC PODS REGISTRY GRID ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6 pt-4">
+              {filteredProjects.map((project) => (
+                <HolographicPod
+                  key={project.id}
+                  project={project}
+                  onOpenDetails={(p) => setActiveModalProject(p)}
+                  onAudioBlip={(freq) => cyberAudio.playHoverBlip(freq)}
+                />
+              ))}
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* ── BOTTOM INDUSTRIAL HARDWARE CONTROL BEZEL WITH PORTS ── */}
+        <div className="h-16 bg-gradient-to-t from-[#090d16] to-[#141b2b] border-t-2 border-slate-700/80 px-8 flex items-center justify-between select-none">
+          <div className="font-mono text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2">
+            <HardDrive className="w-4 h-4 text-cyan-400" />
+            <span>nff747 MAINFRAME V2.4 // HARDWARE BUS 100% OPERATIONAL</span>
+          </div>
+
+          {/* Realistic High-Tech Hardware Ports Bay */}
+          <div className="hidden lg:flex items-center gap-4 font-mono text-[9px] text-slate-400">
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              <span>HDMI / DP</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>USB-C 4.0</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+              <span>OPTICAL</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+              <span>S/PDIF</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              <span>10GbE LAN</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded bg-black/60 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+              <span>AUDIO 3.5mm</span>
+            </div>
+          </div>
+
+          <div className="font-mono text-[10px] text-slate-500">
+            SYS-ID: NFF747-CORE
+          </div>
+        </div>
 
       </div>
 
-      {/* ── HOLOGRAPHIC MODAL ── */}
+      {/* ── HOLOGRAPHIC SPECIFICATION MODAL ── */}
       <AnimatePresence>
         {activeModalProject && (
           <motion.div
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-mono"
             onClick={() => setActiveModalProject(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20, rotateX: 5, opacity: 0 }}
-              animate={{ scale: 1, y: 0, rotateX: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: -20, rotateX: -5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl bg-[#03060c]/90 border border-cyan-500/30 rounded-2xl shadow-[0_0_100px_rgba(6,182,212,0.15)] overflow-hidden font-mono"
+              className="w-full max-w-3xl bg-[#090e1a] border-2 border-cyan-500/50 rounded-2xl shadow-[0_0_80px_rgba(6,182,212,0.25)] overflow-hidden"
             >
-              {/* Modal Banner Backdrop */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-64 bg-cover bg-center opacity-30 mask-image-gradient"
-                style={{
-                  backgroundImage: `url(/banners/${activeModalProject.id}.jpg)`,
-                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
-                }}
-              />
-
               {/* Modal Header */}
-              <div className="relative flex items-center justify-between px-8 py-6 z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <div className="flex items-center justify-between px-6 py-4 bg-[#050912] border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold">
                     {activeModalProject.sysId}
                   </div>
                   <div>
-                    <h3 className="font-bold text-2xl text-white tracking-tight">{activeModalProject.name}</h3>
-                    <div className="text-cyan-300/80 text-sm">{activeModalProject.tagline}</div>
+                    <h3 className="font-bold text-lg text-white">{activeModalProject.name}</h3>
+                    <div className="text-xs text-cyan-300/80">{activeModalProject.tagline}</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveModalProject(null)}
-                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/10"
+                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Modal Body */}
-              <div className="relative p-8 max-h-[70vh] overflow-y-auto space-y-10 z-10 scrollbar-thin scrollbar-thumb-cyan-500/20 scrollbar-track-transparent">
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Left Column: Non-Coder Guide */}
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                        Quickstart (Beginners)
-                      </h4>
-                      <ol className="relative border-l border-white/10 ml-3 space-y-6">
-                        {activeModalProject.nonCoderGuide.map((step, idx) => (
-                          <li key={idx} className="pl-6">
-                            <span className="absolute w-6 h-6 bg-[#03060c] border border-emerald-500/30 rounded-full -left-3 flex items-center justify-center text-[10px] text-emerald-400 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                              {idx + 1}
-                            </span>
-                            <p className="text-slate-300 text-sm leading-relaxed pt-0.5">{step}</p>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
+              <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
+                {/* Description */}
+                <div>
+                  <h4 className="font-bold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">
+                    ARCHITECTURE OVERVIEW
+                  </h4>
+                  <p className="text-slate-300 leading-relaxed bg-black/40 p-4 rounded-xl border border-white/5">
+                    {activeModalProject.description}
+                  </p>
+                </div>
 
-                    <a
-                      href={activeModalProject.zipUrl}
-                      download
-                      onClick={() => cyberAudio.playHoverBlip(1000)}
-                      className="group flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-bold text-sm transition-all shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] active:scale-[0.98]"
-                    >
-                      <Download className="w-5 h-5 stroke-[2.5]" />
-                      <span>DOWNLOAD .ZIP ARCHIVE</span>
-                    </a>
-                  </div>
-
-                  {/* Right Column: Dev/Tech Specs */}
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
-                        <Terminal className="w-5 h-5 text-purple-400" />
-                        Developer Tools
-                      </h4>
-                      <div className="bg-[#000000] rounded-xl p-4 border border-white/10 shadow-inner">
-                        <div className="flex items-center justify-between gap-3 mb-2">
-                          <span className="text-[10px] text-slate-500 uppercase tracking-widest">CLI Verification</span>
-                          <button
-                            onClick={() => {
-                              cyberAudio.playHoverBlip(900);
-                              navigator.clipboard.writeText(activeModalProject.cliQuickstart);
-                            }}
-                            className="px-2 py-1 rounded bg-white/5 hover:bg-white/15 text-slate-300 text-[10px] transition-colors"
-                          >
-                            COPY
-                          </button>
-                        </div>
-                        <div className="text-purple-300 font-mono text-sm overflow-x-auto whitespace-nowrap">
-                          <span className="text-purple-500 select-none mr-2">$</span>
-                          {activeModalProject.cliQuickstart}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-bold text-white uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
-                        <FolderArchive className="w-5 h-5 text-amber-400" />
-                        Architecture
-                      </h4>
-                      <div className="bg-[#000000]/60 rounded-xl p-4 border border-white/10 space-y-2">
-                        {activeModalProject.fileTree.map((f) => (
-                          <div key={f} className="flex items-center gap-2 text-sm">
-                            <span className="text-slate-600">├──</span>
-                            <span className="text-amber-300 font-mono">{f}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <a
-                      href={activeModalProject.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      VIEW ON GITHUB
-                    </a>
+                {/* Beginner Quickstart */}
+                <div>
+                  <h4 className="font-bold text-emerald-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    BEGINNER QUICKSTART GUIDE (NO CODING REQUIRED)
+                  </h4>
+                  <div className="bg-black/40 p-4 rounded-xl border border-white/5 space-y-2 text-slate-300">
+                    <ol className="list-decimal list-inside space-y-1.5">
+                      {activeModalProject.nonCoderGuide.map((step, idx) => (
+                        <li key={idx} className="leading-relaxed">
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ol>
                   </div>
                 </div>
+
+                {/* Developer CLI */}
+                <div>
+                  <h4 className="font-bold text-purple-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
+                    <Terminal className="w-4 h-4" />
+                    DEVELOPER CLI VERIFICATION
+                  </h4>
+                  <div className="bg-black/60 rounded-xl p-3 border border-white/10 flex items-center justify-between gap-3">
+                    <div className="text-slate-200 truncate font-mono">
+                      <span className="text-purple-400 select-none mr-2 font-bold">$</span>
+                      {activeModalProject.cliQuickstart}
+                    </div>
+                    <button
+                      onClick={() => {
+                        cyberAudio.playHoverBlip(900);
+                        navigator.clipboard.writeText(activeModalProject.cliQuickstart);
+                      }}
+                      className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] shrink-0 font-bold"
+                    >
+                      COPY
+                    </button>
+                  </div>
+                </div>
+
+                {/* Key Files */}
+                <div>
+                  <h4 className="font-bold text-amber-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
+                    <FolderArchive className="w-4 h-4" />
+                    DIRECTORY ENTRYPOINTS
+                  </h4>
+                  <div className="bg-black/40 p-3 rounded-xl border border-white/5 space-y-1 text-slate-300 font-mono">
+                    {activeModalProject.fileTree.map((f) => (
+                      <div key={f} className="flex items-center gap-2">
+                        <span className="text-slate-600">├──</span>
+                        <span className="text-amber-300">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-between px-6 py-4 bg-[#050912] border-t border-white/10">
+                <a
+                  href={activeModalProject.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>VIEW ON GITHUB</span>
+                </a>
+
+                <a
+                  href={activeModalProject.zipUrl}
+                  download
+                  onClick={() => cyberAudio.playHoverBlip(1000)}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all"
+                >
+                  <Download className="w-4 h-4 stroke-[2.5]" />
+                  <span>DOWNLOAD ARCHIVE (.ZIP)</span>
+                </a>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
