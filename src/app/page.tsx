@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { HeroCanvas, NPCEmote } from '@/components/HeroCanvas';
 import { 
   Sparkles, 
@@ -24,7 +25,8 @@ import {
   Volume2,
   VolumeX,
   Crosshair,
-  Maximize2
+  Maximize2,
+  Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cyberAudio } from '@/utils/cyberAudio';
@@ -397,6 +399,18 @@ export default function Home() {
         }
         break;
 
+      case 'download':
+      case 'downloads':
+      case 'hub':
+        newLogs.push(
+          { text: 'NAVIGATING TO OPEN-SOURCE ECOSYSTEM DOWNLOAD HUB...', type: 'system' },
+          { text: '1-CLICK ZIP DOWNLOADS & CLI >> https://nff747.github.io/download/', type: 'success' }
+        );
+        setTimeout(() => {
+          window.location.href = '/download/';
+        }, 600);
+        break;
+
       case 'clear':
         setTerminalLogs([{ text: 'CONSOLE CLEARED // READY', type: 'system' }]);
         setTerminalInput('');
@@ -522,8 +536,15 @@ export default function Home() {
               <span className="hidden sm:inline">OVERLOAD</span>
             </button>
 
-            {/* Live Audio Equalizer & Mute Toggle */}
-            <AudioVisualizer isMuted={isAudioMuted} onToggle={handleAudioToggle} />
+            {/* Ecosystem Download Hub Action */}
+            <Link
+              href="/download/"
+              onClick={() => cyberAudio?.playHoverBlip(1600)}
+              className="px-3 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/90 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono backdrop-blur-xl shadow-lg shadow-cyan-950/40"
+            >
+              <Download className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+              <span className="font-bold">DOWNLOADS</span>
+            </Link>
 
             {/* GitHub Profile Action */}
             <a
