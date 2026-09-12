@@ -32,6 +32,29 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'lumina-wgsl',
+    sysId: 'SYS_11',
+    name: 'lumina-wgsl',
+    tagline: 'Real-Time WebGPU Volumetric Light Scattering & Eulerian Fluid Solver in WGSL',
+    category: '3D & WebGPU',
+    lang: 'WGSL / TS',
+    badge: 'WebGPU Compute',
+    metric: 'Zero-Copy VRAM // Henyey-Greenstein Mie Scattering',
+    description: 'High-throughput 3D Eulerian Navier-Stokes fluid dynamics and ray-marched volumetric light scattering executing 100% in VRAM via WebGPU compute passes.',
+    nonCoderGuide: [
+      'Extract the zip archive to any folder on your computer.',
+      'Double-click `examples/index.html` to open the interactive simulation in any modern browser (Chrome, Brave, Edge).',
+      'Click and drag on the screen to inject fluid smoke and watch real-time volumetric light scattering interact with the vortex.'
+    ],
+    cliQuickstart: 'npm install && npm test',
+    fileTree: ['src/core/LuminaSimulator.ts', 'src/core/VolumetricRenderer.ts', 'src/shaders/advect.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'fluid-dynamics', 'navier-stokes', 'volumetric-lighting', 'ray-marching'],
+    githubUrl: 'https://github.com/nff747/lumina-wgsl',
+    zipUrl: 'https://github.com/nff747/lumina-wgsl/archive/refs/heads/main.zip',
+    accent: '#06b6d4'
+  },
+
+  {
     id: 'auto-rig-web',
     sysId: 'SYS_01',
     name: 'auto-rig-web',
