@@ -32,6 +32,29 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'synapse-quant',
+    sysId: 'SYS_12',
+    name: 'synapse-quant',
+    tagline: 'Hardware-Accelerated 1.58-Bit Ternary & INT2 Matrix GEMM Engine in WebGPU',
+    category: 'AI & LLM',
+    lang: 'WGSL / TS',
+    badge: 'BitNet b1.58 Compute',
+    metric: '16:1 Compression // Multiply-Free Add/Sub GEMM',
+    description: 'Hardware-accelerated 1.58-bit ternary matrix multiplication engine for in-browser LLMs. Replaces floating-point multiplier circuits with integer bit-manipulation and branchless accumulation in WebGPU compute shaders.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Double-click `examples/index.html` to open the interactive demo in Chrome, Edge, or Brave.',
+      'View the real-time ternary weight sparsity matrix visualizer and click "Run WebGPU GEMM Benchmark" to measure throughput.'
+    ],
+    cliQuickstart: 'npm install && npm test',
+    fileTree: ['src/core/SynapseEngine.ts', 'src/core/TernaryTensor.ts', 'src/shaders/ternaryGemm.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'bitnet', 'ternary', 'quantization', 'gemm', 'matrix-multiplication', 'llm'],
+    githubUrl: 'https://github.com/nff747/synapse-quant',
+    zipUrl: 'https://github.com/nff747/synapse-quant/archive/refs/heads/main.zip',
+    accent: '#38bdf8'
+  },
+
+  {
     id: 'lumina-wgsl',
     sysId: 'SYS_11',
     name: 'lumina-wgsl',
