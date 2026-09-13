@@ -32,8 +32,31 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'tensor-cloth-wgsl',
+    sysId: 'SYS_13',
+    name: 'tensor-cloth-wgsl',
+    tagline: 'Real-Time XPBD Cloth Simulation & Soft-Body Dynamics in WebGPU',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'XPBD Compliance',
+    metric: '66K+ Constraints // 144 FPS Zero-Copy',
+    description: 'Hardware-accelerated Extended Position-Based Dynamics (XPBD) cloth simulation engine with time-step independent compliance, aerodynamic drag, and Three.js zero-copy VRAM binding.',
+    nonCoderGuide: [
+      'Extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave.',
+      'Drag the wind and sphere sliders in the Cyberdeck HUD to interactively drape and billow the cloth in real-time at 60+ FPS.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/ClothSimulation.ts', 'src/shaders/xpbdPredict.wgsl.ts', 'src/shaders/xpbdDistance.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'cloth-simulation', 'xpbd', 'physics-engine', 'threejs', 'soft-body'],
+    githubUrl: 'https://github.com/nff747/tensor-cloth-wgsl',
+    zipUrl: 'https://github.com/nff747/tensor-cloth-wgsl/archive/refs/heads/main.zip',
+    accent: '#00f0ff'
+  },
+  {
     id: 'synapse-quant',
     sysId: 'SYS_12',
+
     name: 'synapse-quant',
     tagline: 'Hardware-Accelerated 1.58-Bit Ternary & INT2 Matrix GEMM Engine in WebGPU',
     category: 'AI & LLM',
@@ -296,30 +319,9 @@ const PROJECTS: ProjectItem[] = [
     githubUrl: 'https://github.com/nff747/edge-context-router',
     zipUrl: 'https://github.com/nff747/edge-context-router/archive/refs/heads/main.zip',
     accent: '#8b5cf6'
-  },
-  {
-    id: 'tensor-cloth-wgsl',
-    sysId: 'SYS_11',
-    name: 'tensor-cloth-wgsl',
-    tagline: 'Real-Time XPBD Cloth Simulation & Soft-Body Dynamics in WebGPU',
-    category: '3D & WebGPU',
-    lang: 'WebGPU / WGSL',
-    badge: 'XPBD Compliance',
-    metric: '66K+ Constraints // 144 FPS Zero-Copy',
-    description: 'Hardware-accelerated Extended Position-Based Dynamics (XPBD) cloth simulation engine with time-step independent compliance, aerodynamic drag, and Three.js zero-copy VRAM binding.',
-    nonCoderGuide: [
-      'Extract the zip archive to your machine.',
-      'Open `examples/index.html` in Chrome, Edge, or Brave.',
-      'Drag the wind and sphere sliders in the Cyberdeck HUD to interactively drape and billow the cloth in real-time at 60+ FPS.'
-    ],
-    cliQuickstart: 'npm install && npx vitest run',
-    fileTree: ['src/core/ClothSimulation.ts', 'src/shaders/xpbdPredict.wgsl.ts', 'src/shaders/xpbdDistance.wgsl.ts', 'examples/index.html'],
-    tags: ['webgpu', 'wgsl', 'cloth-simulation', 'xpbd', 'physics-engine', 'threejs', 'soft-body'],
-    githubUrl: 'https://github.com/nff747/tensor-cloth-wgsl',
-    zipUrl: 'https://github.com/nff747/tensor-cloth-wgsl/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
   }
 ];
+
 
 
 const CATEGORIES = ['All Repositories', '3D & WebGPU', 'AI & LLM', 'High Performance', 'Storage & Compilers'] as const;
