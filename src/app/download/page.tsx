@@ -32,8 +32,31 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'neural-sdf-wgsl',
+    sysId: 'SYS_14',
+    name: 'neural-sdf-wgsl',
+    tagline: 'Real-Time Neural Signed Distance Field (SDF) Raymarcher & CSG Engine in WebGPU',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Over-Relaxed ω=1.4',
+    metric: '2.8x Raymarch Speedup // 4-Point Tetrahedron Normals',
+    description: 'Hardware-accelerated implicit Signed Distance Field (SDF) raymarcher with over-relaxed sphere tracing, polynomial smooth CSG Booleans, analytic cone ambient occlusion, and penumbra soft shadows in WGSL.',
+    nonCoderGuide: [
+      'Extract the project files from the zip archive.',
+      'Double-click `examples/index.html` in Chrome, Edge, or Brave.',
+      'Orbit the camera around the morphing gyroid fractal and adjust the CSG blend radius slider in the live Cyberdeck HUD.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/SDFRenderer.ts', 'src/shaders/sdfRaymarch.wgsl.ts', 'src/shaders/sdfPrimitives.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'signed-distance-field', 'raymarching', 'csg', 'ambient-occlusion', 'soft-shadows'],
+    githubUrl: 'https://github.com/nff747/neural-sdf-wgsl',
+    zipUrl: 'https://github.com/nff747/neural-sdf-wgsl/archive/refs/heads/main.zip',
+    accent: '#00ff88'
+  },
+  {
     id: 'tensor-cloth-wgsl',
     sysId: 'SYS_13',
+
     name: 'tensor-cloth-wgsl',
     tagline: 'Real-Time XPBD Cloth Simulation & Soft-Body Dynamics in WebGPU',
     category: '3D & WebGPU',
