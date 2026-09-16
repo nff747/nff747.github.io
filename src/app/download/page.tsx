@@ -32,26 +32,48 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'radiance-cascades-wgsl',
+    sysId: 'SYS_15',
+    name: 'radiance-cascades-wgsl',
+    tagline: 'Real-Time Radiance Cascades Global Illumination & Light Transport in WebGPU',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Infinite-Bounce GI',
+    metric: '340 Rays/Probe // 0.38ms Compute Budget',
+    description: 'Hardware-accelerated Radiance Cascades global illumination solver in WGSL. Hierarchical geometric interval raymarching with bilinear angular merging for noise-free diffuse lighting and penumbra soft shadows.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave.',
+      'Use the sliders in the Cyberdeck HUD to adjust cascade hierarchy levels, exposure, and watch infinite light transport bounce in real-time at 60+ FPS.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/CascadeOrchestrator.ts', 'src/shaders/cascadeRaymarch.wgsl.ts', 'src/shaders/cascadeMerge.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'radiance-cascades', 'global-illumination', 'light-transport', 'real-time-lighting'],
+    githubUrl: 'https://github.com/nff747/radiance-cascades-wgsl',
+    zipUrl: 'https://github.com/nff747/radiance-cascades-wgsl/archive/refs/heads/main.zip',
+    accent: '#00f0ff'
+  },
+  {
     id: 'neural-sdf-wgsl',
     sysId: 'SYS_14',
     name: 'neural-sdf-wgsl',
-    tagline: 'Real-Time Neural Signed Distance Field (SDF) Raymarcher & CSG Engine in WebGPU',
+    tagline: 'Real-Time Neural Signed Distance Field Raymarcher & Dynamic CSG Boolean Engine',
     category: '3D & WebGPU',
     lang: 'WebGPU / WGSL',
-    badge: 'Over-Relaxed ω=1.4',
-    metric: '2.8x Raymarch Speedup // 4-Point Tetrahedron Normals',
-    description: 'Hardware-accelerated implicit Signed Distance Field (SDF) raymarcher with over-relaxed sphere tracing, polynomial smooth CSG Booleans, analytic cone ambient occlusion, and penumbra soft shadows in WGSL.',
+    badge: 'Over-Relaxed Tracing',
+    metric: '3x Raymarch Convergence // 4-Point Tetrahedron Normals',
+    description: 'Ultra-fast implicit surface raymarching and dynamic constructive solid geometry (CSG) engine in WebGPU compute shaders. Features over-relaxed sphere tracing, soft shadows, and cone ambient occlusion.',
     nonCoderGuide: [
-      'Extract the project files from the zip archive.',
-      'Double-click `examples/index.html` in Chrome, Edge, or Brave.',
-      'Orbit the camera around the morphing gyroid fractal and adjust the CSG blend radius slider in the live Cyberdeck HUD.'
+      'Extract the zip archive to your machine.',
+      'Open `examples/index.html` in any WebGPU-capable browser.',
+      'Interact with the morphing procedural cybernetic geometry and inspect real-time ambient occlusion.'
     ],
     cliQuickstart: 'npm install && npx vitest run',
-    fileTree: ['src/core/SDFRenderer.ts', 'src/shaders/sdfRaymarch.wgsl.ts', 'src/shaders/sdfPrimitives.wgsl.ts', 'examples/index.html'],
-    tags: ['webgpu', 'wgsl', 'signed-distance-field', 'raymarching', 'csg', 'ambient-occlusion', 'soft-shadows'],
+    fileTree: ['src/core/SDFRenderer.ts', 'src/shaders/sdfRaymarch.wgsl.ts', 'src/shaders/sdfOperators.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'sdf', 'signed-distance-field', 'raymarching', 'csg', 'ambient-occlusion'],
     githubUrl: 'https://github.com/nff747/neural-sdf-wgsl',
     zipUrl: 'https://github.com/nff747/neural-sdf-wgsl/archive/refs/heads/main.zip',
-    accent: '#00ff88'
+    accent: '#ff007f'
   },
   {
     id: 'tensor-cloth-wgsl',
