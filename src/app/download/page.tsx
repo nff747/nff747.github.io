@@ -32,6 +32,28 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'marching-cubes-wgsl',
+    sysId: 'SYS_16',
+    name: 'marching-cubes-wgsl',
+    tagline: 'Real-Time GPU Marching Cubes & Isosurface Extraction Engine in WebGPU / WGSL',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Zero-Copy VRAM',
+    metric: '3.3M+ Cells/sec // Atomic Vertex Allocation',
+    description: 'Hardware-accelerated Marching Cubes isosurface extraction in WebGPU compute shaders. Features canonical Lorensen & Cline tables, parallel edge interpolation, and Three.js zero-copy BufferGeometry bindings.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave.',
+      'Adjust the iso-level threshold and grid density sliders in the Cyberdeck HUD to watch real-time metaballs morph smoothly at 60 FPS.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/MarchingCubesExtractor.ts', 'src/shaders/marchingCubes.wgsl.ts', 'src/tables/marchingTables.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'marching-cubes', 'isosurface', 'metaballs', 'voxel', 'threejs', 'compute-shaders'],
+    githubUrl: 'https://github.com/nff747/marching-cubes-wgsl',
+    zipUrl: 'https://github.com/nff747/marching-cubes-wgsl/archive/refs/heads/main.zip',
+    accent: '#06b6d4'
+  },
+  {
     id: 'radiance-cascades-wgsl',
     sysId: 'SYS_15',
     name: 'radiance-cascades-wgsl',
