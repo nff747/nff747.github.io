@@ -32,6 +32,50 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'ocean-fft-wgsl',
+    sysId: 'SYS_18',
+    name: 'ocean-fft-wgsl',
+    tagline: 'Real-Time Phillips Spectrum & Tessendorf Ocean Wave FFT Simulation in WebGPU',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Radix-2 IFFT',
+    metric: '65K+ Vertices // 0.42ms GPU Solve // Beaufort Force 7',
+    description: 'Hardware-accelerated Jerry Tessendorf ocean surface simulation with statistical Phillips wave spectra, 2D Cooley-Tukey IFFT compute shaders, and Jacobian wave-folding sea foam.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave.',
+      'Use the wind speed and choppiness sliders in the Cyberdeck HUD to transition from gentle ocean swells to a raging Beaufort Force 10 storm surge.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/OceanSimulator.ts', 'src/shaders/oceanSpectrum.wgsl.ts', 'src/shaders/oceanFft.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'ocean-simulation', 'fft', 'ifft', 'tessendorf', 'waves', 'threejs'],
+    githubUrl: 'https://github.com/nff747/ocean-fft-wgsl',
+    zipUrl: 'https://github.com/nff747/ocean-fft-wgsl/archive/refs/heads/main.zip',
+    accent: '#00f0ff'
+  },
+  {
+    id: 'subsurface-scattering-wgsl',
+    sysId: 'SYS_17',
+    name: 'subsurface-scattering-wgsl',
+    tagline: 'Real-Time Separable Screen-Space Subsurface Scattering (SSSS) & Translucency',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Jimenez Dipole SSSS',
+    metric: '17 Separable Samples // 0.34ms Pass // 100% Energy Norm',
+    description: 'Separable screen-space subsurface scattering (SSSS) engine in WebGPU compute shaders. Features Jimenez 6-term Gaussian sum dipole approximations, bilateral depth rejection, and back-surface membrane transmission.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave.',
+      'Switch between human skin, white marble, imperial jade, and candle wax profiles to inspect real-time translucency and back-scattering.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/SSSSPipeline.ts', 'src/shaders/separableSSSS.wgsl.ts', 'src/shaders/translucency.wgsl.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'subsurface-scattering', 'ssss', 'skin-rendering', 'translucency', 'threejs'],
+    githubUrl: 'https://github.com/nff747/subsurface-scattering-wgsl',
+    zipUrl: 'https://github.com/nff747/subsurface-scattering-wgsl/archive/refs/heads/main.zip',
+    accent: '#38bdf8'
+  },
+  {
     id: 'marching-cubes-wgsl',
     sysId: 'SYS_16',
     name: 'marching-cubes-wgsl',
