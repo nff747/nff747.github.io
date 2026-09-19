@@ -32,6 +32,28 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'volumetric-clouds-wgsl',
+    sysId: 'SYS_19',
+    name: 'volumetric-clouds-wgsl',
+    tagline: 'Real-Time WebGPU Volumetric Cloudscapes & Atmospheric Raymarching Engine in WGSL',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: 'Volumetric Raymarcher',
+    metric: '60+ FPS // 0.84ms Compute Pass // Dual-Lobe Mie Phase',
+    description: 'Physically grounded atmospheric volumetric cloud rendering engine powered by dual-frequency 3D Worley-Perlin noise, dual-lobe Henyey-Greenstein light scattering, and Beer-Lambert powder extinction in WGSL.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in any WebGPU-enabled browser (Chrome, Edge, Brave).',
+      'Use the time-of-day slider to watch realistic golden hour light scatter through billowing multi-octave cloudscapes in real-time.'
+    ],
+    cliQuickstart: 'npm install && npx vitest run',
+    fileTree: ['src/core/CloudRenderer.ts', 'src/shaders/cloudMarch.wgsl.ts', 'src/math/phase.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'volumetric-rendering', 'clouds', 'raymarching', 'atmosphere', 'threejs'],
+    githubUrl: 'https://github.com/nff747/volumetric-clouds-wgsl',
+    zipUrl: 'https://github.com/nff747/volumetric-clouds-wgsl/archive/refs/heads/main.zip',
+    accent: '#38bdf8'
+  },
+  {
     id: 'ocean-fft-wgsl',
     sysId: 'SYS_18',
     name: 'ocean-fft-wgsl',
