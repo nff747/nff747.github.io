@@ -36,7 +36,6 @@ npm start # or python main.py or cargo run
 # 🌐 nff747.github.io
 ### Cyberpunk 3D Spatial Developer Portfolio & Interactive WebGL Experience
 
-[![Powered by nff747](https://img.shields.io/badge/Powered%20by-nff747-111111?style=for-the-badge&logo=github&logoColor=white)](https://github.com/nff747)
 [![License: MIT](https://img.shields.io/badge/License-MIT-FF0055.svg?style=for-the-badge)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-000000.svg?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React Three Fiber](https://img.shields.io/badge/R3F-Three.js-black?style=for-the-badge&logo=three.js&logoColor=white)](https://docs.pmnd.rs/react-three-fiber)
@@ -94,17 +93,7 @@ npm run build
 This project is 100% open-source software under the **[MIT License](LICENSE)**.
 
 ### 💼 Commercial Use & Free Redistribution
-You are explicitly permitted to use, modify, fork, integrate, package, and sell commercial products or portfolio templates built using this project with **one visible attribution requirement**:
-> **Attribution Requirement**: You must include a visible credit to **nff747** in your application (e.g., `Powered by nff747` linking to [https://github.com/nff747](https://github.com/nff747) in your application UI, footer, about modal, or documentation).
-
-```html
-<!-- Example visible footer attribution -->
-<p>Powered by <a href="https://github.com/nff747" target="_blank">nff747</a></p>
-```
-
----
-
----
+You are explicitly permitted to use, modify, fork, integrate, package, and sell commercial products or portfolio templates built using this project
 
 ## License
 
