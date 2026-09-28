@@ -88,13 +88,7 @@ npm run build
 
 ---
 
-## 📜 Open Source & Commercial Use (MIT)
+## 📄 License
 
-This project is 100% open-source software under the **[MIT License](LICENSE)**.
+MIT © [nff747](https://github.com/nff747)
 
-### 💼 Commercial Use & Free Redistribution
-You are explicitly permitted to use, modify, fork, integrate, package, and sell commercial products or portfolio templates built using this project
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
