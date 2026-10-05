@@ -1,3 +1,26 @@
 .DS_Store
 *.log
 _next/
+
+# Security & SCA Hygiene Rules
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+node_modules/
+dist/
+build/
+out/
+target/
+.next/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+Thumbs.db
