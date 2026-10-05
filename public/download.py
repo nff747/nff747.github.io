@@ -129,7 +129,7 @@ def clone_repo(repo_name: str, target_dir: str):
 
 def main():
     print(BANNER)
-    print("✔ All 10 projects are 100% Free & Open Source (Commercial MIT License)")
+    print("✔ All 10 projects are 100% Free & Open Source (Commercial Apache License 2.0)")
     print("✔ Compatible with Windows, macOS, and Linux\n")
     
     target_dir = os.path.abspath("./nff747-ecosystem")

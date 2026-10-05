@@ -44,7 +44,7 @@ cat << 'EOF'
    --- OPEN SOURCE DEEP-TECH ECOSYSTEM DOWNLOADER ---
 EOF
 echo -e "${C_RESET}"
-echo -e "${C_GREEN}✔ All projects are 100% Free & Open Source (MIT License for commercial use)${C_RESET}"
+echo -e "${C_GREEN}✔ All projects are 100% Free & Open Source (Apache License 2.0 for commercial use)${C_RESET}"
 echo -e "${C_YELLOW}✔ No coding knowledge required — ready to run and explore!${C_RESET}\n"
 
 # Check download tool

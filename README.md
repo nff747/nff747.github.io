@@ -36,7 +36,7 @@ npm start # or python main.py or cargo run
 # 🌐 nff747.github.io
 ### Cyberpunk 3D Spatial Developer Portfolio & Interactive WebGL Experience
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-FF0055.svg?style=for-the-badge)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-000000.svg?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React Three Fiber](https://img.shields.io/badge/R3F-Three.js-black?style=for-the-badge&logo=three.js&logoColor=white)](https://docs.pmnd.rs/react-three-fiber)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
