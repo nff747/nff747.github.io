@@ -3,3 +3,23 @@ node_modules
 out
 .DS_Store
 *.log
+
+# Security & SCA Hygiene Rules
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+dist/
+build/
+target/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+Thumbs.db
