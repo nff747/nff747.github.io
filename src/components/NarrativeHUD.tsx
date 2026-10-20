@@ -130,7 +130,7 @@ export function NarrativeHUD({
                   isActive ? 'bg-neon-cyan animate-ping' : 'bg-slate-500'
                 }`}
               />
-              <span>0{idx + 1} // {beat.chapter}</span>
+              <span>0{idx + 1} {'//'} {beat.chapter}</span>
             </button>
           );
         })}

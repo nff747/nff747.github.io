@@ -346,7 +346,7 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
           <span className="text-cyan-400 font-bold">{project.sysId}</span>
-          <span className="text-slate-500">//</span>
+          <span className="text-slate-500">{'//'}</span>
           <span className="text-white font-bold tracking-tight">{project.name}</span>
         </div>
         <div className="flex items-center gap-2">

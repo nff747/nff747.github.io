@@ -671,7 +671,7 @@ const SpatialOpticsBlueprint = ({ accent }: { accent: string }) => (
       stroke="rgba(6, 182, 212, 0.4)" strokeWidth="1" fill="none" />
 
     <g transform="translate(30, 25)">
-      <text x="0" y="10" fill="#06b6d4" fontSize="8" fontFamily="monospace" fontWeight="bold">OPTICAL SHADER (SNELL'S LAW)</text>
+      <text x="0" y="10" fill="#06b6d4" fontSize="8" fontFamily="monospace" fontWeight="bold">OPTICAL SHADER (SNELL&apos;S LAW)</text>
       
       <rect x="20" y="30" width="120" height="50" rx="4" fill="rgba(6, 182, 212, 0.08)" stroke="rgba(6, 182, 212, 0.4)" strokeWidth="1.2" />
       <text x="28" y="44" fill="#06b6d4" fontSize="6.5" fontFamily="monospace">Glass Plate (IOR = 1.52)</text>

@@ -458,7 +458,7 @@ export default function Home() {
             <div className="flex flex-col">
               <span className="font-mono font-extrabold tracking-widest text-sm text-white uppercase flex items-center gap-1.5">
                 <ScrambleText text="iKi" />
-                <span className="text-slate-500 font-normal">//</span>
+                <span className="text-slate-500 font-normal">{'//'}</span>
                 <span className={`text-[11px] font-semibold ${overloadMode ? 'text-neon-crimson' : 'text-neon-cyan'}`}>
                   {overloadMode ? 'OVERLOAD ACTIVE' : 'SYSTEM ONLINE'}
                 </span>
@@ -1016,7 +1016,7 @@ export default function Home() {
 
                 <div className="px-3.5 py-1.5 bg-slate-950/60 border-t border-white/[0.04] flex items-center justify-between text-[9px] font-mono text-slate-500">
                   <span>DISCORD // @iki.gpu</span>
-                  <span>TRY: "emote nod" OR "matrix"</span>
+                  <span>TRY: &quot;emote nod&quot; OR &quot;matrix&quot;</span>
                 </div>
               </motion.div>
             )}
