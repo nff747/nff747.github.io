@@ -51,6 +51,17 @@ interface Project {
 
 const VAULT_PROJECTS: Project[] = [
   {
+    id: 'hyper-splat-engine',
+    title: 'HyperSplat Engine',
+    subtitle: 'Real-Time WebGPU 3D Gaussian Splatting & Memory Virtualizer',
+    benchmark: '10M+ Gaussians // 60 FPS Locked // Zero-GC Paging',
+    description: 'Hardware-accelerated 3D Gaussian Splatting renderer in WebGPU/WGSL with EWA covariance projection, 16-bit 2-pass Radix sort, and LRU chunked VRAM virtualization for sub-millisecond frame dispatch.',
+    techStack: ['WebGPU', 'WGSL Compute', '3D Gaussian Splatting', 'Radix Sort', 'VRAM Virtualizer', 'TypeScript'],
+    githubUrl: 'https://github.com/nff747/hyper-splat-engine',
+    accent: '#00f0ff',
+    category: 'WEBGPU_GRAPHICS',
+  },
+  {
     id: 'helix-lsm',
     title: 'Helix LSM Engine',
     subtitle: 'Distributed Lock-Free LSM-Tree Storage Engine',
@@ -600,7 +611,7 @@ export default function Home() {
 
             {/* Core Value Proposition */}
             <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Bridging complex GPU architecture with high-converting web experiences. Specializing in WebGL rendering pipelines, browser-native AI memory management, and spatial UI.
+              Building production WebGPU graphics engines, lock-free Rust distributed storage, and zero-GC browser neural runtimes. Engineered for 60 FPS locked frame budgets and extreme memory efficiency.
             </p>
 
             {/* Real-time Telemetry Metrics Grid */}
@@ -752,7 +763,7 @@ export default function Home() {
                     <span><ScrambleText text="SYSTEM CAPABILITIES" /></span>
                   </div>
                   <span className="text-[10px] font-mono text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/20">
-                    6 ENGINES
+                    {VAULT_PROJECTS.length} ENGINES
                   </span>
                 </div>
 
@@ -835,7 +846,7 @@ export default function Home() {
                 <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-slate-300 uppercase">
                     <Box className="w-3.5 h-3.5 text-neon-crimson" />
-                    <span><ScrambleText text="THE VAULT // 6 PRODUCTIONS" /></span>
+                    <span><ScrambleText text={`THE VAULT // ${VAULT_PROJECTS.length} FLAGSHIP SYSTEMS`} /></span>
                   </div>
                   <span className="text-[10px] font-mono text-slate-400">
                     {selectedProjectIndex + 1} / {VAULT_PROJECTS.length}

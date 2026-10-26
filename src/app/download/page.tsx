@@ -32,6 +32,28 @@ type ProjectItem = {
 // ── DATA ──
 const PROJECTS: ProjectItem[] = [
   {
+    id: 'hyper-splat-engine',
+    sysId: 'SYS_20',
+    name: 'hyper-splat-engine',
+    tagline: 'Real-Time WebGPU 3D Gaussian Splatting & Memory Virtualizer in WGSL',
+    category: '3D & WebGPU',
+    lang: 'WebGPU / WGSL',
+    badge: '3D Gaussian Splatting',
+    metric: '10M+ Gaussians // 60 FPS Locked // Zero-GC Paging',
+    description: 'Hardware-accelerated 3D Gaussian Splatting renderer in WebGPU/WGSL with EWA covariance projection, 16-bit 2-pass Radix sort, and LRU chunked VRAM virtualization for sub-millisecond frame dispatch.',
+    nonCoderGuide: [
+      'Download or extract the zip archive to your machine.',
+      'Open `examples/index.html` in Chrome, Edge, or Brave with WebGPU enabled.',
+      'Orbit freely through 10-million-point photorealistic Gaussian Splat scenes at smooth 60 FPS.'
+    ],
+    cliQuickstart: 'npm install hyper-splat-engine && npm test',
+    fileTree: ['src/core/SplatScene.ts', 'src/core/VRAMVirtualizer.ts', 'src/shaders/splatBillboard.wgsl.ts', 'src/algorithms/radixSort.ts', 'examples/index.html'],
+    tags: ['webgpu', 'wgsl', 'gaussian-splatting', 'radix-sort', 'vram-virtualizer', '3d-graphics', 'real-time'],
+    githubUrl: 'https://github.com/nff747/hyper-splat-engine',
+    zipUrl: 'https://github.com/nff747/hyper-splat-engine/archive/refs/heads/main.zip',
+    accent: '#00f0ff'
+  },
+  {
     id: 'volumetric-clouds-wgsl',
     sysId: 'SYS_19',
     name: 'volumetric-clouds-wgsl',
@@ -617,12 +639,12 @@ export default function DownloadHub() {
               <div className="flex items-center flex-wrap gap-2.5">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-bold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>REPOSITORY: 10 / 10 ACTIVE</span>
+                  <span>REGISTRY: {PROJECTS.length} SYSTEMS ACTIVE</span>
                 </div>
 
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300 font-bold">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>DUAL USE LICENSE (MIT)</span>
+                  <span>OPEN SOURCE (APACHE 2.0)</span>
                 </div>
 
                 <a
@@ -642,13 +664,13 @@ export default function DownloadHub() {
             <div className="space-y-3">
               <div className="font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-cyan-400" />
-                OBJECT ARTIFACT GITHUB COMPILER ARCHITECTURES
+                HIGH-THROUGHPUT GPU COMPUTE & SYSTEMS REGISTRY
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400 tracking-tight drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                 FLAGSHIP SYSTEMS REGISTRY
               </h1>
               <p className="text-slate-400 text-sm sm:text-base max-w-4xl font-light leading-relaxed">
-                Zero-dependency, high-throughput client/server libraries, GPU LBVH trees, and LLVM-bypassing binary emitters. Unrestricted open-source distribution under MIT.
+                Production WebGPU renderers, WGSL compute pipelines, lock-free Rust storage engines, and LLVM-bypassing binary emitters. Verified, zero-GC, and distributed under Apache 2.0.
               </p>
             </div>
 

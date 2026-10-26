@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChapterId, DialogueBeat, STORY_BEATS } from '@/types/story';
 import { Volume2, VolumeX, ChevronRight, Play, Pause, Sparkles } from 'lucide-react';
 
@@ -32,7 +32,7 @@ export function NarrativeHUD({
     : currentBeat.text;
 
   // Synthesize cyberpunk terminal typing beep
-  const playCyberChime = (pitch = 800) => {
+  const playCyberChime = useCallback((pitch = 800) => {
     if (!audioEnabled) return;
     try {
       if (!audioCtxRef.current) {
@@ -60,7 +60,7 @@ export function NarrativeHUD({
     } catch {
       // Audio playback allowed to fail gracefully
     }
-  };
+  }, [audioEnabled]);
 
   // Typewriter effect
   useEffect(() => {
@@ -82,7 +82,7 @@ export function NarrativeHUD({
     }, 22);
 
     return () => clearInterval(interval);
-  }, [effectiveText, audioEnabled]);
+  }, [effectiveText, playCyberChime]);
 
   // Auto-play story pacing
   useEffect(() => {

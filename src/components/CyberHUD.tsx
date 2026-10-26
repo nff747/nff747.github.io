@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { cyberAudio } from '@/utils/cyberAudio';
 
 // ═════════════════════════════════════════════════════════════════
@@ -20,7 +20,7 @@ export function ScrambleText({ text, className = '', triggerHover = true, speed 
   const [isScrambling, setIsScrambling] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const startScramble = () => {
+  const startScramble = useCallback(() => {
     if (isScrambling) return;
     setIsScrambling(true);
     let iteration = 0;
@@ -48,14 +48,14 @@ export function ScrambleText({ text, className = '', triggerHover = true, speed 
 
       iteration += 1 / 2;
     }, speed);
-  };
+  }, [text, speed, isScrambling]);
 
   useEffect(() => {
     startScramble();
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [text]);
+  }, [startScramble]);
 
   return (
     <span
