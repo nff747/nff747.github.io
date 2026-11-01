@@ -27,6 +27,8 @@ type ProjectItem = {
   githubUrl: string;
   zipUrl: string;
   accent: string;
+  releaseDate: string;
+  lastUpdated: string;
 };
 
 // ── DATA ──
@@ -51,7 +53,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'gaussian-splatting', 'radix-sort', 'vram-virtualizer', '3d-graphics', 'real-time'],
     githubUrl: 'https://github.com/nff747/hyper-splat-engine',
     zipUrl: 'https://github.com/nff747/hyper-splat-engine/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
+    accent: '#00f0ff',
+    releaseDate: '2026-10-26',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'volumetric-clouds-wgsl',
@@ -73,7 +77,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'volumetric-rendering', 'clouds', 'raymarching', 'atmosphere', 'threejs'],
     githubUrl: 'https://github.com/nff747/volumetric-clouds-wgsl',
     zipUrl: 'https://github.com/nff747/volumetric-clouds-wgsl/archive/refs/heads/main.zip',
-    accent: '#38bdf8'
+    accent: '#38bdf8',
+    releaseDate: '2026-09-19',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'ocean-fft-wgsl',
@@ -95,7 +101,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'ocean-simulation', 'fft', 'ifft', 'tessendorf', 'waves', 'threejs'],
     githubUrl: 'https://github.com/nff747/ocean-fft-wgsl',
     zipUrl: 'https://github.com/nff747/ocean-fft-wgsl/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
+    accent: '#00f0ff',
+    releaseDate: '2026-09-18',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'subsurface-scattering-wgsl',
@@ -117,7 +125,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'subsurface-scattering', 'ssss', 'skin-rendering', 'translucency', 'threejs'],
     githubUrl: 'https://github.com/nff747/subsurface-scattering-wgsl',
     zipUrl: 'https://github.com/nff747/subsurface-scattering-wgsl/archive/refs/heads/main.zip',
-    accent: '#38bdf8'
+    accent: '#38bdf8',
+    releaseDate: '2026-09-18',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'marching-cubes-wgsl',
@@ -139,7 +149,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'marching-cubes', 'isosurface', 'metaballs', 'voxel', 'threejs', 'compute-shaders'],
     githubUrl: 'https://github.com/nff747/marching-cubes-wgsl',
     zipUrl: 'https://github.com/nff747/marching-cubes-wgsl/archive/refs/heads/main.zip',
-    accent: '#06b6d4'
+    accent: '#06b6d4',
+    releaseDate: '2026-09-16',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'radiance-cascades-wgsl',
@@ -161,7 +173,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'radiance-cascades', 'global-illumination', 'light-transport', 'real-time-lighting'],
     githubUrl: 'https://github.com/nff747/radiance-cascades-wgsl',
     zipUrl: 'https://github.com/nff747/radiance-cascades-wgsl/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
+    accent: '#00f0ff',
+    releaseDate: '2026-09-15',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'neural-sdf-wgsl',
@@ -183,7 +197,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'sdf', 'signed-distance-field', 'raymarching', 'csg', 'ambient-occlusion'],
     githubUrl: 'https://github.com/nff747/neural-sdf-wgsl',
     zipUrl: 'https://github.com/nff747/neural-sdf-wgsl/archive/refs/heads/main.zip',
-    accent: '#ff007f'
+    accent: '#ff007f',
+    releaseDate: '2026-09-14',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'tensor-cloth-wgsl',
@@ -206,7 +222,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'cloth-simulation', 'xpbd', 'physics-engine', 'threejs', 'soft-body'],
     githubUrl: 'https://github.com/nff747/tensor-cloth-wgsl',
     zipUrl: 'https://github.com/nff747/tensor-cloth-wgsl/archive/refs/heads/main.zip',
-    accent: '#00f0ff'
+    accent: '#00f0ff',
+    releaseDate: '2026-09-13',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'synapse-quant',
@@ -229,7 +247,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'bitnet', 'ternary', 'quantization', 'gemm', 'matrix-multiplication', 'llm'],
     githubUrl: 'https://github.com/nff747/synapse-quant',
     zipUrl: 'https://github.com/nff747/synapse-quant/archive/refs/heads/main.zip',
-    accent: '#38bdf8'
+    accent: '#38bdf8',
+    releaseDate: '2026-09-12',
+    lastUpdated: '2026-11-01'
   },
 
   {
@@ -252,7 +272,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'fluid-dynamics', 'navier-stokes', 'volumetric-lighting', 'ray-marching'],
     githubUrl: 'https://github.com/nff747/lumina-wgsl',
     zipUrl: 'https://github.com/nff747/lumina-wgsl/archive/refs/heads/main.zip',
-    accent: '#06b6d4'
+    accent: '#06b6d4',
+    releaseDate: '2026-09-11',
+    lastUpdated: '2026-11-01'
   },
 
   {
@@ -275,7 +297,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['threejs', 'onnx', 'webgl', 'web-worker', 'ik-solver', 'auto-rigging', 'animation'],
     githubUrl: 'https://github.com/nff747/auto-rig-web',
     zipUrl: 'https://github.com/nff747/auto-rig-web/archive/refs/heads/main.zip',
-    accent: '#06b6d4'
+    accent: '#06b6d4',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'splat-bvh-core',
@@ -297,29 +321,33 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'wgsl', 'gaussian-splatting', 'bvh', 'compute-shader', 'radix-sort'],
     githubUrl: 'https://github.com/nff747/splat-bvh-core',
     zipUrl: 'https://github.com/nff747/splat-bvh-core/archive/refs/heads/main.zip',
-    accent: '#ec4899'
+    accent: '#ec4899',
+    releaseDate: '2026-09-02',
+    lastUpdated: '2026-11-01'
   },
   {
-    id: 'aerocache',
+    id: 'flash-attention-wgsl',
     sysId: 'SYS_03',
-    name: 'aerocache',
-    tagline: '13M+ ops/sec Zero-GC Off-Heap In-Memory Cache in Java 21',
-    category: 'High-Performance Systems',
-    lang: 'Java 21',
-    badge: 'Java Foreign Memory',
-    metric: '13.4M Ops/sec // 0.10µs P99 Latency',
-    description: 'Zero-GC, off-heap in-memory key-value cache built on Java 21 Panama Foreign Function & Memory API with RESP protocol wire server.',
+    name: 'flash-attention-wgsl',
+    tagline: 'Tiled IO-Aware FlashAttention Compute Kernel in WebGPU WGSL',
+    category: 'AI & LLM',
+    lang: 'WebGPU / WGSL',
+    badge: 'IO-Aware Attention',
+    metric: 'O(N) VRAM Memory Bound // Sub-millisecond Execution',
+    description: 'Hardware-aware tiled multi-head attention computing softmax online via running sum & max in WGSL workgroup shared memory without materializing full NxN matrix.',
     nonCoderGuide: [
-      'Extract the downloaded folder.',
-      'Ensure Java 21+ and Maven are installed on your machine.',
-      'Run `mvn test` to execute the full benchmark and verification suite, or start the server on port 6379.'
+      'Extract the downloaded zip archive.',
+      'Open the project and launch with any modern WebGPU-enabled browser.',
+      'Watch high-throughput tiled flash attention compute across batch sequences in real time.'
     ],
-    cliQuickstart: 'mvn clean test',
-    fileTree: ['src/main/java/cache/AeroCache.java', 'src/main/java/memory/OffHeapArena.java', 'src/main/java/net/RespServer.java'],
-    tags: ['java21', 'redis', 'off-heap', 'unsafe', 'low-latency', 'zero-gc'],
-    githubUrl: 'https://github.com/nff747/aerocache',
-    zipUrl: 'https://github.com/nff747/aerocache/archive/refs/heads/main.zip',
-    accent: '#f59e0b'
+    cliQuickstart: 'npm install && npm test',
+    fileTree: ['src/flash_attention.wgsl', 'src/index.ts', 'src/pipeline.ts', 'tests/kernel.test.ts'],
+    tags: ['webgpu', 'wgsl', 'flash-attention', 'transformer', 'llm', 'deep-learning', 'parallel-compute'],
+    githubUrl: 'https://github.com/nff747/flash-attention-wgsl',
+    zipUrl: 'https://github.com/nff747/flash-attention-wgsl/archive/refs/heads/main.zip',
+    accent: '#f59e0b',
+    releaseDate: '2026-09-28',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'helix-lsm',
@@ -341,7 +369,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['rust', 'lsm-tree', 'lock-free', 'storage-engine', 'database', 'skiplist'],
     githubUrl: 'https://github.com/nff747/helix-lsm',
     zipUrl: 'https://github.com/nff747/helix-lsm/archive/refs/heads/main.zip',
-    accent: '#ef4444'
+    accent: '#ef4444',
+    releaseDate: '2026-09-05',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'swarm-refactor',
@@ -363,7 +393,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['python', 'ai-agents', 'actor-model', 'self-healing', 'sandbox', 'llm'],
     githubUrl: 'https://github.com/nff747/swarm-refactor',
     zipUrl: 'https://github.com/nff747/swarm-refactor/archive/refs/heads/main.zip',
-    accent: '#a855f7'
+    accent: '#a855f7',
+    releaseDate: '2026-09-05',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'neural-texture-engine',
@@ -385,7 +417,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'super-resolution', 'threejs', 'textures', 'webgl2', 'shaders'],
     githubUrl: 'https://github.com/nff747/neural-texture-engine',
     zipUrl: 'https://github.com/nff747/neural-texture-engine/archive/refs/heads/main.zip',
-    accent: '#ec4899'
+    accent: '#ec4899',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'nova-wasm',
@@ -407,7 +441,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webassembly', 'compiler', 'rust', 'wasm', 'programming-language', 'ast'],
     githubUrl: 'https://github.com/nff747/nova-wasm',
     zipUrl: 'https://github.com/nff747/nova-wasm/archive/refs/heads/main.zip',
-    accent: '#10b981'
+    accent: '#10b981',
+    releaseDate: '2026-09-06',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'webgpu-vram-pager',
@@ -429,7 +465,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgpu', 'vram', 'ring-buffer', 'memory-management', 'browser-llm', 'streaming'],
     githubUrl: 'https://github.com/nff747/webgpu-vram-pager',
     zipUrl: 'https://github.com/nff747/webgpu-vram-pager/archive/refs/heads/main.zip',
-    accent: '#6366f1'
+    accent: '#6366f1',
+    releaseDate: '2026-09-02',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'spatial-glass-ui',
@@ -451,7 +489,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['webgl2', 'glassmorphism', 'spatial-ui', 'parallax', 'react', 'shaders'],
     githubUrl: 'https://github.com/nff747/spatial-glass-ui',
     zipUrl: 'https://github.com/nff747/spatial-glass-ui/archive/refs/heads/main.zip',
-    accent: '#06b6d4'
+    accent: '#06b6d4',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01'
   },
   {
     id: 'edge-context-router',
@@ -473,7 +513,9 @@ const PROJECTS: ProjectItem[] = [
     tags: ['transformers', 'edge-ai', 'llm-routing', 'cost-optimizer', 'embeddings', 'quantized'],
     githubUrl: 'https://github.com/nff747/edge-context-router',
     zipUrl: 'https://github.com/nff747/edge-context-router/archive/refs/heads/main.zip',
-    accent: '#8b5cf6'
+    accent: '#8b5cf6',
+    releaseDate: '2026-09-02',
+    lastUpdated: '2026-11-01'
   }
 ];
 
@@ -933,9 +975,14 @@ export default function DownloadHub() {
               {/* Modal Body */}
               <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
                 <div>
-                  <h4 className="font-bold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">
-                    ARCHITECTURE OVERVIEW
-                  </h4>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-cyan-400 uppercase tracking-wider text-[11px]">
+                      ARCHITECTURE OVERVIEW
+                    </h4>
+                    <div className="text-[10px] text-slate-400 font-mono">
+                      INIT: <span className="text-white font-bold">{activeModalProject.releaseDate}</span> <span className="text-slate-600">{'//'}</span> LATEST COMMIT: <span className="text-emerald-400 font-bold">{activeModalProject.lastUpdated}</span>
+                    </div>
+                  </div>
                   <p className="text-slate-300 leading-relaxed bg-black/40 p-4 rounded-xl border border-white/5">
                     {activeModalProject.description}
                   </p>

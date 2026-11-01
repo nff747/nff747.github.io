@@ -47,6 +47,8 @@ interface Project {
   githubUrl: string;
   accent: string;
   category: string;
+  releaseDate: string;
+  lastUpdated: string;
 }
 
 const VAULT_PROJECTS: Project[] = [
@@ -60,6 +62,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/hyper-splat-engine',
     accent: '#00f0ff',
     category: 'WEBGPU_GRAPHICS',
+    releaseDate: '2026-10-26',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'helix-lsm',
@@ -71,6 +75,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/helix-lsm',
     accent: '#38bdf8',
     category: 'STORAGE',
+    releaseDate: '2026-09-05',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'swarm-refactor',
@@ -82,6 +88,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/swarm-refactor',
     accent: '#f59e0b',
     category: 'AI_SYSTEMS',
+    releaseDate: '2026-09-05',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'splat-bvh',
@@ -93,6 +101,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/splat-bvh-core',
     accent: '#00e5ff',
     category: 'COMPUTE',
+    releaseDate: '2026-09-02',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'vram-pager',
@@ -104,6 +114,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/webgpu-vram-pager',
     accent: '#ff0055',
     category: 'MEMORY',
+    releaseDate: '2026-09-02',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'neural-texture',
@@ -115,6 +127,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/neural-texture-engine',
     accent: '#39d353',
     category: 'RUNTIME',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'auto-rig-web',
@@ -126,6 +140,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/auto-rig-web',
     accent: '#e0a82e',
     category: 'SKELETAL',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'spatial-glass',
@@ -137,6 +153,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/spatial-glass-ui',
     accent: '#a855f7',
     category: 'ACCESSIBILITY',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'aerocache',
@@ -148,6 +166,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/aerocache',
     accent: '#06b6d4',
     category: 'STORAGE_ENGINE',
+    releaseDate: '2026-09-01',
+    lastUpdated: '2026-11-01',
   },
   {
     id: 'nova-wasm',
@@ -159,6 +179,8 @@ const VAULT_PROJECTS: Project[] = [
     githubUrl: 'https://github.com/nff747/nova-wasm',
     accent: '#ec4899',
     category: 'COMPILERS',
+    releaseDate: '2026-09-06',
+    lastUpdated: '2026-11-01',
   },
 ];
 
@@ -886,6 +908,11 @@ export default function Home() {
                     </div>
                     <div className="text-[11px] font-mono text-neon-cyan mt-0.5">
                       {activeProject.benchmark}
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] font-mono text-slate-400 mt-1">
+                      <span>INIT: <strong className="text-slate-300">{activeProject.releaseDate}</strong></span>
+                      <span className="text-slate-600">{'//'}</span>
+                      <span>LATEST COMMIT: <strong className="text-emerald-400">{activeProject.lastUpdated}</strong></span>
                     </div>
                   </div>
 

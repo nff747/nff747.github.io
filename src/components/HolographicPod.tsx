@@ -20,6 +20,8 @@ interface ProjectItem {
   githubUrl: string;
   zipUrl: string;
   accent: string;
+  releaseDate: string;
+  lastUpdated: string;
 }
 
 interface HolographicPodProps {
@@ -350,6 +352,11 @@ export function HolographicPod({ project, onOpenDetails, onAudioBlip }: Holograp
           <span className="text-white font-bold tracking-tight">{project.name}</span>
         </div>
         <div className="flex items-center gap-2">
+          {project.releaseDate && (
+            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+              REL: <span className="text-white font-bold">{project.releaseDate}</span>
+            </span>
+          )}
           <span className="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 text-[10px] border border-cyan-500/40 font-bold">
             {project.badge}
           </span>
