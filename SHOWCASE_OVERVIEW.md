@@ -1,0 +1,6 @@
+# Interactive Systems Showcase & Architectural Narrative
+
+### Technical Narrative & Visitor Journey
+- Structured interactive walkthrough guiding technical recruiters, engineers, and founders.
+- Highlighted architectural differentiators: zero-GC, sub-millisecond dispatch, lock-free memory.
+
