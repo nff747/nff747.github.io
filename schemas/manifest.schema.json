@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nff747.Github.Io Engine Configuration Manifest",
+  "type": "object",
+  "properties": {
+    "engine": { "type": "string", "const": "nff747.github.io" },
+    "version": { "type": "string" },
+    "arenaBytes": { "type": "integer", "minimum": 1048576 },
+    "zeroAllocation": { "type": "boolean", "default": true }
+  },
+  "required": ["engine", "version"]
+}
