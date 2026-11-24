@@ -145,3 +145,7 @@
 </div>
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:FF0055,50:0D1117,100:05080D&height=80&section=footer" alt="Waving Footer"/>
+
+---
+
+*A component of the [Lunar Paradox](https://lunarparadox.com) applied systems & graphics laboratory. Engineered by nff747.*
