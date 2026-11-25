@@ -140,6 +140,11 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
     const container = document.getElementById('room-canvas');
     const loaderEl = document.getElementById('loader');
@@ -162,6 +167,23 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
+
+    // Realistic PBR Environment Reflections
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = 0.45;
+
+    // Post-Processing Pipeline (Subtle Bloom + ACES Output)
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.28, // strength
+      0.55, // radius
+      0.85  // threshold
+    );
+    composer.addPass(bloomPass);
+    composer.addPass(new OutputPass());
 
     // --- LIGHTING (Warm cozy room + crisp architectural contrast) ---
     const hemi = new THREE.HemisphereLight(0xfff5e8, 0x262b3d, 1.35);
@@ -408,6 +430,7 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
     });
 
     const clock = new THREE.Clock();
@@ -475,7 +498,7 @@
       camera.position.y = THREE.MathUtils.lerp(camera.position.y, 1.65 - cursor.y * 0.12, 0.04);
       camera.lookAt(0, 0.95, -0.4);
 
-      renderer.render(scene, camera);
+      composer.render();
     }
     animate();
   </script>
