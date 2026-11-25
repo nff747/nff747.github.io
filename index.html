@@ -344,6 +344,17 @@
 
     let charLoaded = false;
     let charHeight = 1.65;
+    let mixer = null;
+    const actions = {};
+    let activeAction = null;
+
+    function playClip(name) {
+      if (!actions[name] || activeAction === actions[name]) return;
+      const next = actions[name];
+      next.reset().setEffectiveTimeScale(1).setEffectiveWeight(1).fadeIn(0.35).play();
+      if (activeAction) activeAction.fadeOut(0.35);
+      activeAction = next;
+    }
 
     gltfLoader.load('./models/anime_character.glb', (gltf) => {
       const model = gltf.scene;
@@ -367,6 +378,14 @@
       phoneGroup.position.set(0.14, 1.05, 0.32);
       phoneGroup.rotation.x = -0.35;
       zzzGroup.position.set(0.18, 1.55, 0.1);
+
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+        for (const clip of gltf.animations) {
+          actions[clip.name] = mixer.clipAction(clip);
+        }
+        playClip('Idle');
+      }
 
       charLoaded = true;
       loaderEl.classList.add('hidden');
@@ -440,6 +459,7 @@
       const t = clock.getElapsedTime();
 
       if (charLoaded) {
+        if (mixer) mixer.update(dt);
         stateTimer += dt;
         if (stateTimer >= stateDuration) {
           const nextIdx = (STATES.indexOf(state) + 1) % STATES.length;
@@ -452,31 +472,28 @@
         const dist = Math.hypot(dx, dz);
 
         if (dist > 0.04) {
+          playClip('Walk');
           const speed = 0.85 * dt;
           charPivot.position.x += (dx / dist) * Math.min(speed, dist);
           charPivot.position.z += (dz / dist) * Math.min(speed, dist);
-          charPivot.position.y = THREE.MathUtils.lerp(charPivot.position.y, targetPos.y, 0.08) + Math.abs(Math.sin(t * 7)) * 0.025;
+          charPivot.position.y = THREE.MathUtils.lerp(charPivot.position.y, targetPos.y, 0.08);
 
           const targetAngle = Math.atan2(dx, dz);
           charPivot.rotation.y = THREE.MathUtils.lerp(charPivot.rotation.y, targetAngle, 0.08);
-          charPivot.rotation.x = THREE.MathUtils.lerp(charPivot.rotation.x, 0.04, 0.1);
+          charPivot.rotation.x = THREE.MathUtils.lerp(charPivot.rotation.x, 0, 0.1);
         } else {
           // Idle / Couch postures
           charPivot.position.y = THREE.MathUtils.lerp(charPivot.position.y, targetPos.y, 0.1);
           if (state === 'SLEEPING') {
+            playClip('Sleep');
             charPivot.rotation.y = THREE.MathUtils.lerp(charPivot.rotation.y, -0.2, 0.05);
-            charPivot.rotation.x = THREE.MathUtils.lerp(charPivot.rotation.x, -0.18, 0.04);
-            charPivot.rotation.z = THREE.MathUtils.lerp(charPivot.rotation.z, 0.12 + Math.sin(t * 0.9) * 0.02, 0.04);
-          } else if (state === 'DOOM_SCROLLING') {
+          } else if (state === 'DOOM_SCROLLING' || state === 'SITTING') {
+            playClip('Sit');
             charPivot.rotation.y = THREE.MathUtils.lerp(charPivot.rotation.y, -0.15, 0.06);
-            charPivot.rotation.x = THREE.MathUtils.lerp(charPivot.rotation.x, 0.14 + Math.sin(t * 2.5) * 0.015, 0.06);
-            charPivot.rotation.z = THREE.MathUtils.lerp(charPivot.rotation.z, 0, 0.06);
           } else {
-            // Look toward cursor on the glass wall
+            playClip('Idle');
             const lookYaw = cursor.active ? cursor.x * 0.45 : Math.sin(t * 0.5) * 0.2;
             charPivot.rotation.y = THREE.MathUtils.lerp(charPivot.rotation.y, lookYaw, 0.05);
-            charPivot.rotation.x = THREE.MathUtils.lerp(charPivot.rotation.x, Math.sin(t * 1.4) * 0.015, 0.06);
-            charPivot.rotation.z = THREE.MathUtils.lerp(charPivot.rotation.z, 0, 0.06);
           }
         }
 
