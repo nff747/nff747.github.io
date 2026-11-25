@@ -163,51 +163,63 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // --- LIGHTING (Warm cozy room + natural skin tones) ---
-    const hemi = new THREE.HemisphereLight(0xfff5e8, 0x161925, 0.85);
+    // --- LIGHTING (Warm cozy room + crisp architectural contrast) ---
+    const hemi = new THREE.HemisphereLight(0xfff5e8, 0x262b3d, 1.35);
     scene.add(hemi);
 
-    const lampLight = new THREE.PointLight(0xffcf96, 6.5, 10, 1.6);
+    const lampLight = new THREE.PointLight(0xffcf96, 10.0, 14, 1.4);
     lampLight.position.set(-2.1, 2.1, -0.8);
     lampLight.castShadow = true;
     lampLight.shadow.bias = -0.001;
     scene.add(lampLight);
 
-    const windowFill = new THREE.DirectionalLight(0xdbeafe, 1.15);
+    const windowFill = new THREE.DirectionalLight(0xdbeafe, 1.45);
     windowFill.position.set(2.5, 2.8, 3.2);
     windowFill.castShadow = true;
     scene.add(windowFill);
+
+    const rimLight = new THREE.DirectionalLight(0xe2c28d, 0.9);
+    rimLight.position.set(-1.5, 2.5, -2.5);
+    scene.add(rimLight);
 
     // --- 3D ROOM ARCHITECTURE ---
     const room = new THREE.Group();
     scene.add(room);
 
-    // Floor
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x161820, roughness: 0.75, metalness: 0.08 });
+    // Warm Matte Hardwood Floor
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x25201e, roughness: 0.65, metalness: 0.08 });
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 10), floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     room.add(floor);
 
     // Back & Side Walls
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x101218, roughness: 0.9 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x181b24, roughness: 0.85 });
     const backWall = new THREE.Mesh(new THREE.PlaneGeometry(12, 6), wallMat);
     backWall.position.set(0, 3, -2.6);
     backWall.receiveShadow = true;
     room.add(backWall);
 
+    // Subtle Warm Accent Strip behind couch
+    const wallStrip = new THREE.Mesh(
+      new THREE.BoxGeometry(2.6, 0.03, 0.02),
+      new THREE.MeshBasicMaterial({ color: 0xe2c28d })
+    );
+    wallStrip.position.set(1.1, 1.75, -2.58);
+    room.add(wallStrip);
+
     // Cozy Rug
     const rug = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.6, 1.6, 0.02, 48),
-      new THREE.MeshStandardMaterial({ color: 0x222533, roughness: 0.95 })
+      new THREE.CylinderGeometry(1.65, 1.65, 0.02, 48),
+      new THREE.MeshStandardMaterial({ color: 0x2d3142, roughness: 0.92 })
     );
     rug.position.set(0.2, 0.01, -0.3);
     rug.receiveShadow = true;
     room.add(rug);
 
-    // Couch (Right-Back)
+    // Couch (Right-Back) with Throw Pillows
     const couchGroup = new THREE.Group();
-    const couchMat = new THREE.MeshStandardMaterial({ color: 0x262938, roughness: 0.85 });
+    const couchMat = new THREE.MeshStandardMaterial({ color: 0x33384a, roughness: 0.82 });
     const couchBase = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.42, 0.95), couchMat);
     couchBase.position.y = 0.21;
     couchBase.castShadow = true;
@@ -226,9 +238,36 @@
     armR.position.x = 1.0;
     couchGroup.add(armR);
 
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xe2c28d, roughness: 0.9 });
+    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.32, 0.14), pillowMat);
+    pillow.position.set(-0.62, 0.54, -0.18);
+    pillow.rotation.set(-0.2, 0.25, 0.12);
+    pillow.castShadow = true;
+    couchGroup.add(pillow);
+
     couchGroup.position.set(1.1, 0, -1.65);
     couchGroup.rotation.y = -0.18;
     room.add(couchGroup);
+
+    // Low Coffee Table
+    const tableGroup = new THREE.Group();
+    const tableTop = new THREE.Mesh(
+      new THREE.BoxGeometry(1.1, 0.05, 0.6),
+      new THREE.MeshStandardMaterial({ color: 0x3a322d, roughness: 0.5 })
+    );
+    tableTop.position.y = 0.34;
+    tableTop.castShadow = true;
+    tableTop.receiveShadow = true;
+    tableGroup.add(tableTop);
+    const mug = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.035, 0.09, 16),
+      new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.3 })
+    );
+    mug.position.set(0.2, 0.41, 0.05);
+    tableGroup.add(mug);
+    tableGroup.position.set(0.85, 0, -0.45);
+    tableGroup.rotation.y = -0.18;
+    room.add(tableGroup);
 
     // Warm Floor Lamp (Left-Back)
     const lampStand = new THREE.Mesh(
