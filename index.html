@@ -178,9 +178,9 @@
     composer.addPass(new RenderPass(scene, camera));
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.28, // strength
-      0.55, // radius
-      0.85  // threshold
+      0.18, // strength (only emissive lamp/phone glow)
+      0.45, // radius
+      1.15  // threshold > 1.0 so white coat/mug don't bloom
     );
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
@@ -281,6 +281,14 @@
     tableTop.castShadow = true;
     tableTop.receiveShadow = true;
     tableGroup.add(tableTop);
+    const legGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.34, 8);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1c24, metalness: 0.7, roughness: 0.3 });
+    for (const [lx, lz] of [[-0.48, -0.24], [0.48, -0.24], [-0.48, 0.24], [0.48, 0.24]]) {
+      const leg = new THREE.Mesh(legGeo, legMat);
+      leg.position.set(lx, 0.17, lz);
+      leg.castShadow = true;
+      tableGroup.add(leg);
+    }
     const mug = new THREE.Mesh(
       new THREE.CylinderGeometry(0.04, 0.035, 0.09, 16),
       new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.3 })
@@ -363,6 +371,13 @@
           obj.castShadow = true;
           obj.receiveShadow = true;
           obj.frustumCulled = false;
+          if (obj.material) {
+            obj.material.side = THREE.DoubleSide;
+            obj.material.depthWrite = true;
+            if (obj.material.transparent && obj.material.opacity >= 0.99) {
+              obj.material.transparent = false;
+            }
+          }
         }
       });
 
@@ -407,7 +422,7 @@
       new THREE.Vector3(0.4, 0, -0.4)
     ];
     let targetPos = waypoints[0].clone();
-    const couchPos = new THREE.Vector3(1.05, 0.18, -1.45);
+    const couchPos = new THREE.Vector3(1.05, 0.0, -1.35);
 
     const cursor = { x: 0, y: 0, active: false };
     window.addEventListener('pointermove', (e) => {
